@@ -1,5 +1,6 @@
 package searchengine.model;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Type;
@@ -11,13 +12,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@ToString
 @Getter
 @Setter
+@NoArgsConstructor
 @Entity
 @Table(name = "site")
 public class Sites {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +42,5 @@ public class Sites {
 
     @Column(nullable = false)
     private String name;
-
 
 }
