@@ -1,4 +1,4 @@
-package searchengine.siteParsing;
+package searchengine.dto.siteParsing;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

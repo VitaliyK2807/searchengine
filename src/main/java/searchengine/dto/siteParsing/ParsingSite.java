@@ -1,4 +1,4 @@
-package searchengine.siteParsing;
+package searchengine.dto.siteParsing;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

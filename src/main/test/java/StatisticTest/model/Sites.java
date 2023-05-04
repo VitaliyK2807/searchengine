@@ -1,16 +1,11 @@
-package searchengine.model;
+package StatisticTest.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -34,6 +29,7 @@ public class Sites {
     @Column(nullable = false)
     private LocalDateTime statusTime;
 
+    @Column(nullable = false)
     private String lastError;
 
     @Column(nullable = false, columnDefinition="VARCHAR(255)")
