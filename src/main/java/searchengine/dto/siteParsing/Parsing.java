@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import searchengine.model.Sites;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
-//@Slf4j
+@Slf4j
 public class Parsing {
 
     //static Logger logger = LogManager.getLogger(Parsing.class);
@@ -22,7 +22,7 @@ public class Parsing {
     }
 
     public void startParsing () {
-        //log.error("Start site parsing: " + site.getUrl());
+        log.error("Start site parsing: " + site.getUrl());
         ParsingSite parsingSite = new ParsingSite(site.getUrl(), listUrls, regex);
         //new ForkJoinPool().invoke(parsingSite);
     }
