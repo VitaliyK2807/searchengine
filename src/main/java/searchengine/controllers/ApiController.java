@@ -28,7 +28,7 @@ public class ApiController {
 
     @PatchMapping("/startIndexing")
     public ResponseEntity<IndexingSitesResponse> startIndexing () {
-
+        startSiteIndexingService.indexingStart();
         return ResponseEntity.ok(startSiteIndexingService.indexingStart());
     }
 }
