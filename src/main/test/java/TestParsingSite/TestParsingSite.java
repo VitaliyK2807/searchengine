@@ -3,6 +3,7 @@ package TestParsingSite;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import searchengine.dto.siteParsing.Parsing;
 import searchengine.model.Sites;
 import searchengine.model.Status;
@@ -17,8 +18,8 @@ public class TestParsingSite {
     @BeforeEach
     protected void setup () {
         site.setId(1);
-        site.setName("Skillbox.ru");
-        site.setUrl("https://www.skillbox.ru");
+        site.setName("playback.ru");
+        site.setUrl("http://www.playback.ru/");
         site.setStatus(Status.INDEXED);
         site.setLastError("");
         site.setStatusTime(LocalDateTime.now());
@@ -35,6 +36,7 @@ public class TestParsingSite {
     @DisplayName("Тест количества парсинг")
     void testCountUrls() {
         System.out.println("Поиск ссылок окончен, количество ссылок: " + parsing.getListIndexingPages().size());
+        parsing.getListIndexingPages().forEach(site -> System.out.println(site.getPath()));
     }
 
 }

@@ -7,6 +7,7 @@ import searchengine.config.Site;
 import searchengine.config.SitesList;
 import searchengine.dto.indexingSites.IndexingSitesResponse;
 import searchengine.dto.siteParsing.Parsing;
+import searchengine.model.Pages;
 import searchengine.model.Sites;
 import searchengine.model.Status;
 import searchengine.repositories.PagesRepository;
@@ -20,6 +21,10 @@ import java.util.List;
 @Slf4j
 public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
 
+    private final int countProcessors = Runtime.getRuntime().availableProcessors();
+    private final Thread[] poolThreads = new Thread[countProcessors];
+
+    private boolean isSiteIndexing = true;
     @Autowired
     SitesRepository sitesRepository;
 
@@ -35,28 +40,39 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
         boolean resultResponse = sitesList.getSites().isEmpty();
 
         if (resultResponse) {
-            return resultResponse(0,0,0, false);
-        } else {
+            log.error("Нет конфигурационного файла или отсутствует список сайтов");
+            return new IndexingSitesResponse(false,
+                    "Нет конфигурационного файла или отсутствует список сайтов");
+        } else if (isSiteIndexing) {
+            isSiteIndexing = false;
+            log.info("Индексация сайтов запущена");
+            long start = System.currentTimeMillis();
             List<Sites> sites = sitesRepository.findAll();
-            sitesList.getSites().forEach(site ->
-                siteUpdate(isEqualsUrl(sites, site), site)
+                sitesList.getSites().forEach(site ->
+                new Thread(() -> siteUpdate(isEqualsUrl(sites, site), site)).start()
             );
-
+            log.info("Индексация сайтов закончена. " + ((System.currentTimeMillis() - start) / 1000) + " s.");
+            isSiteIndexing = true;
+            return new IndexingSitesResponse(true);
         }
-        return resultResponse(1,1,1, true);
+        log.error("Не верный запрос! Индексация уже запущена!");
+        return new IndexingSitesResponse(false,
+                "Индексация уже запущена!");
     }
 
     private void siteUpdate (boolean siteEquals, Site site) {
         if (siteEquals) {
             Sites sitesMemory = sitesRepository.findByUrl(site.getUrl());
             sitesRepository.delete(sitesMemory);
-            pagesRepository.deleteBySite(sitesMemory);
             sitesMemory.setStatus(Status.INDEXING);
             sitesMemory.setStatusTime(LocalDateTime.now());
             sitesRepository.save(sitesMemory);
+
             Parsing parsing = new Parsing(sitesMemory);
             parsing.startParsing();
-            log.debug("true");
+            List<Pages> pages = parsing.getListIndexingPages();
+            pagesRepository.saveAll(pages);
+
         } else {
             Sites newSite = new Sites();
             newSite.setStatus(Status.INDEXING);
@@ -64,9 +80,12 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
             newSite.setName(site.getName());
             newSite.setStatusTime(LocalDateTime.now());
             sitesRepository.save(newSite);
+
             Parsing parsing = new Parsing(newSite);
             parsing.startParsing();
-            log.debug("false");
+            List<Pages> pages = parsing.getListIndexingPages();
+            pagesRepository.saveAll(pages);
+
         }
     }
 
@@ -79,15 +98,5 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
         return false;
     }
 
-    private IndexingSitesResponse resultResponse (int countSites,
-                                                  int countPages,
-                                                  int countErrors,
-                                                  boolean result) {
-        IndexingSitesResponse sitesResponse = new IndexingSitesResponse();
-        sitesResponse.setCountSitesIndexing(countSites);
-        sitesResponse.setCountPagesIndexing(countPages);
-        sitesResponse.setCountErrors(countErrors);
-        sitesResponse.setResult(result);
-        return sitesResponse;
-    }
+
 }

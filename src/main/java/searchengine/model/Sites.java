@@ -2,15 +2,9 @@ package searchengine.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.annotations.Type;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -24,7 +18,7 @@ public class Sites {
     @Column(name = "id", nullable = false)
     private int id;
 
-    @OneToMany(mappedBy = "site", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "site", fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private List<Pages> pages;
 
     @Enumerated(EnumType.STRING)

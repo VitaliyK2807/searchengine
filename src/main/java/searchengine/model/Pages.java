@@ -17,7 +17,7 @@ public class Pages {
     @Column(name = "id", nullable = false)
     private int id;
 
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
     @JoinColumn(name = "sites_id", nullable = false)
     private Sites site;
 

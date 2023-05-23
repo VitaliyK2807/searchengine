@@ -1,5 +1,6 @@
 package searchengine.dto.siteParsing;
 
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -11,6 +12,7 @@ import java.util.concurrent.RecursiveAction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 public class ParsingSite extends RecursiveAction {
 
     private CopyOnWriteArraySet<IndexedPage> linksMap;
@@ -70,18 +72,17 @@ public class ParsingSite extends RecursiveAction {
                 Document document = Jsoup.connect(path)
                         .timeout(10_000)
                         .userAgent("Chrome/109.0.5414.120 Safari/532.5")
-                        .ignoreHttpErrors(true)
                         .ignoreContentType(true)
                         .get();
 
-                page.setContent(document.text());
+                page.setContent(document.outerHtml());
                 page.setCode(document.connection().response().statusCode());
 
                 return document.select("[href]").select("a");
             } catch (IOException sTE) {
-                System.out.println("Exception URL -> " + path + " " + sTE.toString());
+                log.error("IOException URL -> " + sTE.toString());
             } catch (Exception ex) {
-                System.out.println("Other exceptions URL -> " + path + " " + ex.getMessage());
+                log.error("Other exceptions URL -> " + path + " " + ex.getMessage());
             }
         }
         return new Elements();
