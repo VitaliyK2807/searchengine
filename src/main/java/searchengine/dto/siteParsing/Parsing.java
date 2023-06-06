@@ -1,48 +1,75 @@
 package searchengine.dto.siteParsing;
 
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import searchengine.model.Sites;
-import java.util.*;
+import searchengine.model.Status;
+import searchengine.repositories.PagesRepository;
+import searchengine.repositories.SitesRepository;
+
+import java.time.LocalDateTime;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ForkJoinPool;
+
 @Slf4j
+@Data
 public class Parsing {
-
-    //static Logger logger = LogManager.getLogger(Parsing.class);
     private Sites site;
-    private CopyOnWriteArraySet<IndexedPage> listUrls;
-    private CopyOnWriteArraySet<String> list;
-    String regex;
+    private CopyOnWriteArraySet<IndexedPage> listPages;
+    private CopyOnWriteArraySet<String> listUrls;
 
-    public Parsing(Sites site) {
+    private final PagesRepository pagesRepository;
+    private final SitesRepository sitesRepository;
+
+    public Parsing(Sites site, SitesRepository sitesRepository, PagesRepository pagesRepository) {
         this.site = site;
+        listPages = new CopyOnWriteArraySet<>();
         listUrls = new CopyOnWriteArraySet<>();
-        list = new CopyOnWriteArraySet<>();
-        regex = "http[s]?://" + getDomain(site.getUrl()) + ".[a-z]+/[^,\\s\"><«»а-яА-Я]+";
-
+        this.sitesRepository = sitesRepository;
+        this.pagesRepository = pagesRepository;
+        if (!site.getUrl().endsWith("/")) {
+            String memory = site.getUrl();
+            site.setUrl(memory + "/");
+        }
     }
 
     public void startParsing () {
-        log.error("Start site parsing: " + site.getUrl());
-        ParsingSite parsingSite = new ParsingSite(site.getUrl(), listUrls, regex);
-        //new ForkJoinPool().invoke(parsingSite);
-    }
+        log.info("Site " + site.getName() + " parsing start" );
+        long start = System.currentTimeMillis();
 
-    public List<String> getUrls () {
-        return new ArrayList<>(list);
-    }
-
-    public List<IndexedPage> getListIndexingPages () {
-        return new ArrayList<>(listUrls);
-    }
-    private String getDomain(String path) {
-        int start = path.indexOf("/");
-        if (path.substring(start + 2, start + 3).toLowerCase().equals("w")) {
-            start = path.indexOf(".");
-            int end = path.indexOf(".", start + 2);
-            return path.substring(start + 1, end);
+        ForkJoinPool pool = new ForkJoinPool();
+        ParsingSite parsingSite = new ParsingSite(site.getUrl(),
+                                                    site.getName(),
+                                                    listUrls,
+                                                    site,
+                                                    sitesRepository,
+                                                    pagesRepository);
+        try {
+            pool.invoke(parsingSite);
+            sitesRepository.updateStatusById(Status.INDEXED, site.getId());
+            log.info("Parsing of the site: " + site.getName() + ", completed in: " +
+                    ((System.currentTimeMillis() - start) / 1000) + " s.");
+            log.info("Added number of entries: " + listUrls.size() + ", for site: " + site.getName());
+        } catch (NullPointerException nEx) {
+            sitesRepository.updateFailed(Status.FAILED, nEx.getSuppressed().toString(), LocalDateTime.now(), site.getId());
+            log.error(nEx.getSuppressed().toString());
+            log.error("Parsing of the site: " + site.getName() + ", stopped in: " +
+                    ((System.currentTimeMillis() - start) / 1000) + " s.");
+            log.error("Added number of entries: " + listUrls.size() + ", for site: " + site.getName());
         }
-        int end = path.indexOf(".", start + 2);
-        return path.substring(start + 2, end);
-    }
+     }
+
+//    public List<Pages> getListIndexingPages () {
+//        return listPages.stream().map(indexedPage -> {
+//            Pages pages = new Pages();
+//            pages.setPath(indexedPage.getPath());
+//            pages.setCode(indexedPage.getCode());
+//            pages.setContent(indexedPage.getContent());
+//            pages.setSite(site);
+//            return pages;
+//        }).collect(Collectors.toList());
+//    }
 
 }

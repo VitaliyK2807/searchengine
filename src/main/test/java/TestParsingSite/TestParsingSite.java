@@ -18,25 +18,23 @@ public class TestParsingSite {
     @BeforeEach
     protected void setup () {
         site.setId(1);
-        site.setName("playback.ru");
-        site.setUrl("http://www.playback.ru/");
+        site.setName("Skillbox.ru");
+        site.setUrl("https://www.skillbox.ru");
         site.setStatus(Status.INDEXED);
         site.setLastError("");
         site.setStatusTime(LocalDateTime.now());
-        parsing = new Parsing(site);
-        System.out.println("Начало поиска!");
-        long start = System.currentTimeMillis();
 
+       // parsing = new Parsing(site, );
         parsing.startParsing();
 
-        System.out.println("Затрачено времени: " + ((System.currentTimeMillis() - start) / 1000) + " сек.");
+
     }
 
     @Test
     @DisplayName("Тест количества парсинг")
     void testCountUrls() {
-        System.out.println("Поиск ссылок окончен, количество ссылок: " + parsing.getListIndexingPages().size());
-        parsing.getListIndexingPages().forEach(site -> System.out.println(site.getPath()));
+        System.out.println("Количество ссылок в листе ссылок: " + parsing.getListUrls().size());
+        parsing.getListUrls().forEach(System.out::println);
     }
 
 }

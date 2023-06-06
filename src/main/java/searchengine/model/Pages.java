@@ -2,7 +2,6 @@ package searchengine.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import javax.persistence.*;
 
 @Getter
@@ -17,12 +16,11 @@ public class Pages {
     @Column(name = "id", nullable = false)
     private int id;
 
-    @ManyToOne(cascade = CascadeType.MERGE, fetch = FetchType.LAZY)
-    @JoinColumn(name = "sites_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sites_id", nullable = false, referencedColumnName = "id")
     private Sites site;
 
     @Column(name = "path")
-            //, columnDefinition="TEXT, Index(path(255))")
     private String path;
 
     @Column(name = "code", nullable = false)

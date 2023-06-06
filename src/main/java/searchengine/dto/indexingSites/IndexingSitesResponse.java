@@ -3,11 +3,6 @@ package searchengine.dto.indexingSites;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
-import searchengine.config.Site;
-import searchengine.config.SitesList;
-
-import java.util.List;
 
 @Data
 @Getter
@@ -15,9 +10,15 @@ import java.util.List;
 public class IndexingSitesResponse {
 
     private boolean result;
-    private int countSitesIndexing;
-    private int countPagesIndexing;
-    private int countErrors;
+    private String error;
 
+    public IndexingSitesResponse(boolean result, String error) {
+        this.result = result;
+        this.error = error;
+    }
+
+    public IndexingSitesResponse(boolean result) {
+        this.result = result;
+    }
 
 }

@@ -1,0 +1,176 @@
+2023-05-18 08:51:51.174 [main] INFO  searchengine.Application - Starting Application using Java 18.0.2.1 on VITALIY-PC with PID 8484 (D:\Education\Graduation project\searchengine\target\classes started by Виталий in D:\Education\Graduation project\searchengine)
+2023-05-18 08:51:51.200 [main] INFO  searchengine.Application - No active profile set, falling back to 1 default profile: "default"
+2023-05-18 08:51:52.996 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-05-18 08:51:53.154 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 134 ms. Found 4 JPA repository interfaces.
+2023-05-18 08:51:54.630 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2023-05-18 08:51:54.678 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2023-05-18 08:51:54.680 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2023-05-18 08:51:54.681 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.64]
+2023-05-18 08:51:54.989 [main] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2023-05-18 08:51:54.989 [main] INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3618 ms
+2023-05-18 08:51:55.423 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.9.Final
+2023-05-18 08:51:55.923 [main] INFO  org.hibernate.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2023-05-18 08:51:56.200 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2023-05-18 08:51:56.606 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2023-05-18 08:51:56.644 [main] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2023-05-18 08:51:58.845 [main] INFO  org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-05-18 08:51:58.868 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-05-18 08:52:00.541 [main] INFO  org.springframework.boot.autoconfigure.web.servlet.WelcomePageHandlerMapping - Adding welcome page template: index
+2023-05-18 08:52:01.031 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2023-05-18 08:52:01.071 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2023-05-18 08:52:01.107 [main] INFO  searchengine.Application - Started Application in 11.226 seconds (JVM running for 13.29)
+2023-05-18 09:11:12.772 [main] INFO  searchengine.Application - Starting Application using Java 18.0.2.1 on VITALIY-PC with PID 8740 (D:\Education\Graduation project\searchengine\target\classes started by Виталий in D:\Education\Graduation project\searchengine)
+2023-05-18 09:11:12.821 [main] INFO  searchengine.Application - No active profile set, falling back to 1 default profile: "default"
+2023-05-18 09:11:14.523 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-05-18 09:11:14.642 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 103 ms. Found 4 JPA repository interfaces.
+2023-05-18 09:11:15.983 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2023-05-18 09:11:16.020 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2023-05-18 09:11:16.021 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2023-05-18 09:11:16.022 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.64]
+2023-05-18 09:11:16.239 [main] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2023-05-18 09:11:16.239 [main] INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3229 ms
+2023-05-18 09:11:16.572 [main] INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-05-18 09:11:16.692 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.9.Final
+2023-05-18 09:11:17.183 [main] INFO  org.hibernate.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2023-05-18 09:11:17.421 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2023-05-18 09:11:17.750 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2023-05-18 09:11:17.788 [main] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2023-05-18 09:11:19.396 [main] INFO  org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-05-18 09:11:19.415 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-05-18 09:11:20.872 [main] INFO  org.springframework.boot.autoconfigure.web.servlet.WelcomePageHandlerMapping - Adding welcome page template: index
+2023-05-18 09:11:21.289 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2023-05-18 09:11:21.330 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2023-05-18 09:11:21.350 [main] INFO  searchengine.Application - Started Application in 9.716 seconds (JVM running for 11.804)
+2023-05-18 09:13:24.484 [main] INFO  searchengine.Application - Starting Application using Java 18.0.2.1 on VITALIY-PC with PID 12160 (D:\Education\Graduation project\searchengine\target\classes started by Виталий in D:\Education\Graduation project\searchengine)
+2023-05-18 09:13:24.511 [main] INFO  searchengine.Application - No active profile set, falling back to 1 default profile: "default"
+2023-05-18 09:13:26.818 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-05-18 09:13:27.053 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 188 ms. Found 4 JPA repository interfaces.
+2023-05-18 09:13:29.081 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2023-05-18 09:13:29.136 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2023-05-18 09:13:29.141 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2023-05-18 09:13:29.142 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.64]
+2023-05-18 09:13:29.572 [main] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2023-05-18 09:13:29.572 [main] INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 4806 ms
+2023-05-18 09:13:29.957 [main] INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-05-18 09:13:30.052 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.9.Final
+2023-05-18 09:13:30.377 [main] INFO  org.hibernate.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2023-05-18 09:13:30.599 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2023-05-18 09:13:30.946 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2023-05-18 09:13:30.975 [main] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2023-05-18 09:13:32.590 [main] INFO  org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-05-18 09:13:32.605 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-05-18 09:13:33.931 [main] INFO  org.springframework.boot.autoconfigure.web.servlet.WelcomePageHandlerMapping - Adding welcome page template: index
+2023-05-18 09:13:34.337 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2023-05-18 09:13:34.372 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2023-05-18 09:13:34.388 [main] INFO  searchengine.Application - Started Application in 11.264 seconds (JVM running for 13.947)
+2023-05-18 09:13:56.999 [http-nio-8080-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-05-18 09:13:56.999 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2023-05-18 09:13:57.001 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2023-05-18 09:15:44.505 [main] INFO  searchengine.Application - Starting Application using Java 18.0.2.1 on VITALIY-PC with PID 7268 (D:\Education\Graduation project\searchengine\target\classes started by Виталий in D:\Education\Graduation project\searchengine)
+2023-05-18 09:15:44.531 [main] INFO  searchengine.Application - No active profile set, falling back to 1 default profile: "default"
+2023-05-18 09:15:46.087 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-05-18 09:15:46.205 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 100 ms. Found 4 JPA repository interfaces.
+2023-05-18 09:15:47.482 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2023-05-18 09:15:47.514 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2023-05-18 09:15:47.515 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2023-05-18 09:15:47.516 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.64]
+2023-05-18 09:15:47.738 [main] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2023-05-18 09:15:47.738 [main] INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3007 ms
+2023-05-18 09:15:48.063 [main] INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-05-18 09:15:48.163 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.9.Final
+2023-05-18 09:15:48.529 [main] INFO  org.hibernate.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2023-05-18 09:15:48.782 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2023-05-18 09:15:49.148 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2023-05-18 09:15:49.175 [main] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2023-05-18 09:15:50.672 [main] INFO  org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-05-18 09:15:50.687 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-05-18 09:15:52.401 [main] INFO  org.springframework.boot.autoconfigure.web.servlet.WelcomePageHandlerMapping - Adding welcome page template: index
+2023-05-18 09:15:52.843 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2023-05-18 09:15:52.883 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2023-05-18 09:15:52.916 [main] INFO  searchengine.Application - Started Application in 9.689 seconds (JVM running for 11.726)
+2023-05-18 09:15:54.905 [http-nio-8080-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-05-18 09:15:54.905 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2023-05-18 09:15:54.907 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2023-05-18 09:18:09.215 [http-nio-8080-exec-2] INFO  searchengine.controllers.ApiController - /startIndexing
+2023-05-18 09:18:09.216 [http-nio-8080-exec-2] INFO  searchengine.services.StartSiteIndexingServiceImpl - 1
+2023-05-18 09:18:09.229 [http-nio-8080-exec-2] INFO  searchengine.services.StartSiteIndexingServiceImpl - [searchengine.model.Sites@4e278836]
+2023-05-18 09:18:10.886 [http-nio-8080-exec-2] INFO  searchengine.dto.siteParsing.Parsing - Start site parsing: https://www.skillbox.ru
+2023-05-18 09:18:51.758 [main] INFO  searchengine.Application - Starting Application using Java 18.0.2.1 on VITALIY-PC with PID 12592 (D:\Education\Graduation project\searchengine\target\classes started by Виталий in D:\Education\Graduation project\searchengine)
+2023-05-18 09:18:51.802 [main] INFO  searchengine.Application - No active profile set, falling back to 1 default profile: "default"
+2023-05-18 09:18:53.828 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-05-18 09:18:54.057 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 202 ms. Found 4 JPA repository interfaces.
+2023-05-18 09:18:55.576 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2023-05-18 09:18:55.603 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2023-05-18 09:18:55.604 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2023-05-18 09:18:55.605 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.64]
+2023-05-18 09:18:55.854 [main] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2023-05-18 09:18:55.855 [main] INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3884 ms
+2023-05-18 09:18:56.213 [main] INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-05-18 09:18:56.288 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.9.Final
+2023-05-18 09:18:56.627 [main] INFO  org.hibernate.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2023-05-18 09:18:56.860 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2023-05-18 09:18:57.168 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2023-05-18 09:18:57.198 [main] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2023-05-18 09:18:58.772 [main] INFO  org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-05-18 09:18:58.785 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-05-18 09:19:00.150 [main] INFO  org.springframework.boot.autoconfigure.web.servlet.WelcomePageHandlerMapping - Adding welcome page template: index
+2023-05-18 09:19:00.595 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2023-05-18 09:19:00.634 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2023-05-18 09:19:00.654 [main] INFO  searchengine.Application - Started Application in 9.927 seconds (JVM running for 11.771)
+2023-05-18 09:19:07.637 [http-nio-8080-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-05-18 09:19:07.637 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2023-05-18 09:19:07.639 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2023-05-18 13:49:11.738 [main] INFO  searchengine.Application - Starting Application using Java 18.0.2.1 on VITALIY-PC with PID 2880 (D:\Education\Graduation project\searchengine\target\classes started by Виталий in D:\Education\Graduation project\searchengine)
+2023-05-18 13:49:11.801 [main] INFO  searchengine.Application - No active profile set, falling back to 1 default profile: "default"
+2023-05-18 13:49:13.755 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-05-18 13:49:13.916 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 138 ms. Found 4 JPA repository interfaces.
+2023-05-18 13:49:15.551 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2023-05-18 13:49:15.608 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2023-05-18 13:49:15.611 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2023-05-18 13:49:15.612 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.64]
+2023-05-18 13:49:15.910 [main] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2023-05-18 13:49:15.910 [main] INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3963 ms
+2023-05-18 13:49:16.322 [main] INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-05-18 13:49:16.415 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.9.Final
+2023-05-18 13:49:16.770 [main] INFO  org.hibernate.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2023-05-18 13:49:17.032 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2023-05-18 13:49:17.583 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2023-05-18 13:49:17.623 [main] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2023-05-18 13:49:19.071 [main] INFO  org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-05-18 13:49:19.087 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-05-18 13:49:20.659 [main] INFO  org.springframework.boot.autoconfigure.web.servlet.WelcomePageHandlerMapping - Adding welcome page template: index
+2023-05-18 13:49:21.091 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2023-05-18 13:49:21.129 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2023-05-18 13:49:21.149 [main] INFO  searchengine.Application - Started Application in 10.676 seconds (JVM running for 12.81)
+2023-05-18 13:49:31.389 [http-nio-8080-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-05-18 13:49:31.389 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2023-05-18 13:49:31.392 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 3 ms
+2023-05-18 13:57:31.798 [main] INFO  searchengine.Application - Starting Application using Java 18.0.2.1 on VITALIY-PC with PID 2176 (D:\Education\Graduation project\searchengine\target\classes started by Виталий in D:\Education\Graduation project\searchengine)
+2023-05-18 13:57:31.873 [main] INFO  searchengine.Application - No active profile set, falling back to 1 default profile: "default"
+2023-05-18 13:57:33.439 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2023-05-18 13:57:33.566 [main] INFO  org.springframework.data.repository.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 106 ms. Found 4 JPA repository interfaces.
+2023-05-18 13:57:34.852 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port(s): 8080 (http)
+2023-05-18 13:57:34.885 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Initializing ProtocolHandler ["http-nio-8080"]
+2023-05-18 13:57:34.887 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2023-05-18 13:57:34.888 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/9.0.64]
+2023-05-18 13:57:35.099 [main] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2023-05-18 13:57:35.099 [main] INFO  org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 3057 ms
+2023-05-18 13:57:35.443 [main] INFO  org.hibernate.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2023-05-18 13:57:35.541 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 5.6.9.Final
+2023-05-18 13:57:35.897 [main] INFO  org.hibernate.annotations.common.Version - HCANN000001: Hibernate Commons Annotations {5.1.2.Final}
+2023-05-18 13:57:36.120 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2023-05-18 13:57:36.439 [main] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+2023-05-18 13:57:36.474 [main] INFO  org.hibernate.dialect.Dialect - HHH000400: Using dialect: org.hibernate.dialect.MySQL8Dialect
+2023-05-18 13:57:38.092 [main] INFO  org.hibernate.engine.transaction.jta.platform.internal.JtaPlatformInitiator - HHH000490: Using JtaPlatform implementation: [org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform]
+2023-05-18 13:57:38.111 [main] INFO  org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2023-05-18 13:57:39.574 [main] INFO  org.springframework.boot.autoconfigure.web.servlet.WelcomePageHandlerMapping - Adding welcome page template: index
+2023-05-18 13:57:40.034 [main] INFO  org.apache.coyote.http11.Http11NioProtocol - Starting ProtocolHandler ["http-nio-8080"]
+2023-05-18 13:57:40.079 [main] INFO  org.springframework.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port(s): 8080 (http) with context path ''
+2023-05-18 13:57:40.096 [main] INFO  searchengine.Application - Started Application in 9.515 seconds (JVM running for 11.382)
+2023-05-18 13:57:46.058 [http-nio-8080-exec-1] INFO  org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-05-18 13:57:46.058 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2023-05-18 13:57:46.060 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 2 ms
+2023-05-18 13:57:55.143 [http-nio-8080-exec-4] INFO  searchengine.controllers.ApiController - /startIndexing
+2023-05-18 13:57:55.143 [http-nio-8080-exec-4] INFO  searchengine.services.StartSiteIndexingServiceImpl - 1
+2023-05-18 13:57:55.155 [http-nio-8080-exec-4] INFO  searchengine.services.StartSiteIndexingServiceImpl - [searchengine.model.Sites@58c23db5]
+2023-05-18 13:57:55.425 [http-nio-8080-exec-4] INFO  searchengine.dto.siteParsing.Parsing - Start site parsing: https://www.skillbox.ru

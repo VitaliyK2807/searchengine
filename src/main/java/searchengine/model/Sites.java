@@ -4,6 +4,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -19,7 +20,7 @@ public class Sites {
     private int id;
 
     @OneToMany(mappedBy = "site", fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
-    private List<Pages> pages;
+    private List<Pages> pages = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

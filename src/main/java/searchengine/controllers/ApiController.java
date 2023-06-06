@@ -1,5 +1,8 @@
 package searchengine.controllers;
 
+import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import searchengine.dto.indexingSites.IndexingSitesResponse;
@@ -9,6 +12,7 @@ import searchengine.services.StatisticsService;
 
 @RestController
 @RequestMapping("/api")
+@Slf4j
 public class ApiController {
 
     private final StartSiteIndexingService startSiteIndexingService;
@@ -23,12 +27,13 @@ public class ApiController {
 
     @GetMapping("/statistics")
     public ResponseEntity<StatisticsResponse> statistics() {
+        log.info("Command: @GetMapping(\"/statistics\")");
         return ResponseEntity.ok(statisticsService.getStatistics());
     }
 
-    @PatchMapping("/startIndexing")
+    @GetMapping("/startIndexing")
     public ResponseEntity<IndexingSitesResponse> startIndexing () {
-        startSiteIndexingService.indexingStart();
+        log.info("Command: @GetMapping(\"/startIndexing\")");
         return ResponseEntity.ok(startSiteIndexingService.indexingStart());
     }
 }

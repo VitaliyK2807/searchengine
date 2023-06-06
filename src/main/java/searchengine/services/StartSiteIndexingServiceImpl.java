@@ -1,5 +1,4 @@
 package searchengine.services;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -7,12 +6,10 @@ import searchengine.config.Site;
 import searchengine.config.SitesList;
 import searchengine.dto.indexingSites.IndexingSitesResponse;
 import searchengine.dto.siteParsing.Parsing;
-import searchengine.model.Pages;
 import searchengine.model.Sites;
 import searchengine.model.Status;
 import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -40,22 +37,20 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
         boolean resultResponse = sitesList.getSites().isEmpty();
 
         if (resultResponse) {
-            log.error("Нет конфигурационного файла или отсутствует список сайтов");
+            log.error("Missing config file or missing list of sites");
             return new IndexingSitesResponse(false,
                     "Нет конфигурационного файла или отсутствует список сайтов");
         } else if (isSiteIndexing) {
             isSiteIndexing = false;
-            log.info("Индексация сайтов запущена");
-            long start = System.currentTimeMillis();
+            log.info("Website indexing started");
             List<Sites> sites = sitesRepository.findAll();
                 sitesList.getSites().forEach(site ->
-                new Thread(() -> siteUpdate(isEqualsUrl(sites, site), site)).start()
-            );
-            log.info("Индексация сайтов закончена. " + ((System.currentTimeMillis() - start) / 1000) + " s.");
+                 new Thread(() -> siteUpdate(isEqualsUrl(sites, site), site)
+            ).start());
             isSiteIndexing = true;
             return new IndexingSitesResponse(true);
         }
-        log.error("Не верный запрос! Индексация уже запущена!");
+        log.error("Invalid request! Indexing is already running!");
         return new IndexingSitesResponse(false,
                 "Индексация уже запущена!");
     }
@@ -63,15 +58,14 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
     private void siteUpdate (boolean siteEquals, Site site) {
         if (siteEquals) {
             Sites sitesMemory = sitesRepository.findByUrl(site.getUrl());
-            sitesRepository.delete(sitesMemory);
+            sitesRepository.deleteById(sitesMemory.getId());
+
             sitesMemory.setStatus(Status.INDEXING);
             sitesMemory.setStatusTime(LocalDateTime.now());
             sitesRepository.save(sitesMemory);
 
-            Parsing parsing = new Parsing(sitesMemory);
+            Parsing parsing = new Parsing(sitesMemory, sitesRepository, pagesRepository);
             parsing.startParsing();
-            List<Pages> pages = parsing.getListIndexingPages();
-            pagesRepository.saveAll(pages);
 
         } else {
             Sites newSite = new Sites();
@@ -81,10 +75,8 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
             newSite.setStatusTime(LocalDateTime.now());
             sitesRepository.save(newSite);
 
-            Parsing parsing = new Parsing(newSite);
+            Parsing parsing = new Parsing(newSite, sitesRepository, pagesRepository);
             parsing.startParsing();
-            List<Pages> pages = parsing.getListIndexingPages();
-            pagesRepository.saveAll(pages);
 
         }
     }

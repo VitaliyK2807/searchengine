@@ -1,17 +1,14 @@
 package searchengine;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@Slf4j
+@ComponentScan(basePackages = "searchengine")
 public class Application{
-    //private static final Logger log = LogManager.getLogger(Application.class);
 
     public static void main(String[] args) {
-        log.info("Start");
         SpringApplication.run(Application.class, args);
-
     }
 
 }

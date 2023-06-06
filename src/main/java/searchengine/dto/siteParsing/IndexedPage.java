@@ -9,7 +9,6 @@ import java.util.Objects;
 
 @Getter
 @Setter
-
 public class IndexedPage {
 
     private String path;

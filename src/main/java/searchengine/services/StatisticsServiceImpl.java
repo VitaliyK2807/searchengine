@@ -1,5 +1,6 @@
 package searchengine.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import searchengine.dto.statistics.DetailedStatisticsItem;
@@ -15,9 +16,10 @@ import java.util.List;
 import java.util.Random;
 
 @Service
+@Slf4j
 public class StatisticsServiceImpl implements StatisticsService {
 
-    private final Random random = new Random();
+//    private final Random random = new Random();
 //    private final SitesList sites;
 
     @Autowired
