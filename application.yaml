@@ -22,9 +22,13 @@ indexing-settings:
   sites:
 #    - url: https://www.lenta.ru
 #      name: Лента.ру
-#    - url: https://www.skillbox.ru
-#      name: Skillbox.ru
-    - url:  http://www.playback.ru/
-      name: playback.ru
+    - url: https://www.skillbox.ru
+      name: Skillbox.ru
 #    - url: https://www.playback.ru
 #      name: PlayBack.Ru
+#    - url:  http://www.radiomv.ru
+#      name: Radiomv.ru
+#    - url: https://www.ipfran.ru
+#      name: Ipfran.ru
+#    - url:  https://www.dimonvideo.ru
+#      name: Dimonvideo.ru

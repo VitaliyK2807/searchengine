@@ -11,6 +11,8 @@ import searchengine.model.Sites;
 import searchengine.repositories.LemmasRepository;
 import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -44,9 +46,11 @@ public class StatisticsServiceImpl implements StatisticsService {
 
         List<DetailedStatisticsItem> detailed = new ArrayList<>();
         List<Sites> sitesList = sitesRepository.findAll();
+
                 //sites.getSites();
         for(int i = 0; i < sitesList.size(); i++) {
             Sites site = sitesList.get(i);
+
             DetailedStatisticsItem item = new DetailedStatisticsItem();
             item.setName(site.getName());
             item.setUrl(site.getUrl());
@@ -63,7 +67,6 @@ public class StatisticsServiceImpl implements StatisticsService {
 //                    (random.nextInt(10_000)));
             detailed.add(item);
         }
-
         StatisticsResponse response = new StatisticsResponse();
         StatisticsData data = new StatisticsData();
         data.setTotal(total);

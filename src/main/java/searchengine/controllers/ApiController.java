@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import searchengine.dto.indexingSites.IndexingSitesResponse;
+import searchengine.dto.indexingSites.IndexingStopResponse;
 import searchengine.dto.statistics.StatisticsResponse;
 import searchengine.services.StartSiteIndexingService;
 import searchengine.services.StatisticsService;
@@ -32,8 +33,14 @@ public class ApiController {
     }
 
     @GetMapping("/startIndexing")
-    public ResponseEntity<IndexingSitesResponse> startIndexing () {
+    public ResponseEntity<IndexingSitesResponse> startIndexing() {
         log.info("Command: @GetMapping(\"/startIndexing\")");
         return ResponseEntity.ok(startSiteIndexingService.indexingStart());
+    }
+
+    @GetMapping("/stopIndexing")
+    public ResponseEntity<IndexingStopResponse> stopIndexing() {
+        log.info("Command: @GetMapping(\"/stopIndexing\")");
+        return ResponseEntity.ok(startSiteIndexingService.indexingStop());
     }
 }

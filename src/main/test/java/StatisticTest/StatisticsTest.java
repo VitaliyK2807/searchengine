@@ -80,17 +80,17 @@ public class StatisticsTest {
                 "-1122720826732327387\",\"FoW6je\":false,\"Im6cmf\":\"/_/IdentityPoliciesUi\",\"LVIXXb\":1,\"");
 
         Lemmas lemmasGoogle = new Lemmas();
-        lemmasGoogle.setSiteId(siteGoogle);
+        //lemmasGoogle.setSiteId(siteGoogle);
         lemmasGoogle.setLemma("Гугл");
         lemmasGoogle.setFrequency(55);
 
         Lemmas lemmasGoogleSearch = new Lemmas();
-        lemmasGoogleSearch.setSiteId(siteGoogle);
+        //lemmasGoogleSearch.setSiteId(siteGoogle);
         lemmasGoogleSearch.setLemma("Программирование");
         lemmasGoogleSearch.setFrequency(5135);
 
         Lemmas lemmasPolicies = new Lemmas();
-        lemmasPolicies.setSiteId(siteGoogle);
+        //lemmasPolicies.setSiteId(siteGoogle);
         lemmasPolicies.setLemma("Технология");
         lemmasPolicies.setFrequency(334);
 

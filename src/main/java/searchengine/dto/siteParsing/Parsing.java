@@ -10,6 +10,8 @@ import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ForkJoinPool;
 
@@ -17,22 +19,22 @@ import java.util.concurrent.ForkJoinPool;
 @Data
 public class Parsing {
     private Sites site;
-    private CopyOnWriteArraySet<IndexedPage> listPages;
     private CopyOnWriteArraySet<String> listUrls;
+    private CopyOnWriteArraySet<IndexedPage> listPages = new CopyOnWriteArraySet<>();
 
-    private final PagesRepository pagesRepository;
-    private final SitesRepository sitesRepository;
+//    private final PagesRepository pagesRepository;
+//    private final SitesRepository sitesRepository;
 
-    public Parsing(Sites site, SitesRepository sitesRepository, PagesRepository pagesRepository) {
+    public Parsing(Sites site) {
+            //, SitesRepository sitesRepository, PagesRepository pagesRepository) {
         this.site = site;
-        listPages = new CopyOnWriteArraySet<>();
-        listUrls = new CopyOnWriteArraySet<>();
-        this.sitesRepository = sitesRepository;
-        this.pagesRepository = pagesRepository;
-        if (!site.getUrl().endsWith("/")) {
-            String memory = site.getUrl();
-            site.setUrl(memory + "/");
-        }
+        //listUrls = new CopyOnWriteArraySet<>();
+//        this.sitesRepository = sitesRepository;
+//        this.pagesRepository = pagesRepository;
+//        if (!site.getUrl().endsWith("/")) {
+//            String memory = site.getUrl();
+//            site.setUrl(memory + "/");
+//        }
     }
 
     public void startParsing () {
@@ -42,23 +44,27 @@ public class Parsing {
         ForkJoinPool pool = new ForkJoinPool();
         ParsingSite parsingSite = new ParsingSite(site.getUrl(),
                                                     site.getName(),
-                                                    listUrls,
-                                                    site,
-                                                    sitesRepository,
-                                                    pagesRepository);
+                                                    listPages,
+                                                    site);
+//                ,
+//                                                    sitesRepository,
+//                                                    pagesRepository);
         try {
             pool.invoke(parsingSite);
-            sitesRepository.updateStatusById(Status.INDEXED, site.getId());
+            //sitesRepository.updateStatusById(Status.INDEXED, site.getId());
             log.info("Parsing of the site: " + site.getName() + ", completed in: " +
                     ((System.currentTimeMillis() - start) / 1000) + " s.");
             log.info("Added number of entries: " + listUrls.size() + ", for site: " + site.getName());
         } catch (NullPointerException nEx) {
-            sitesRepository.updateFailed(Status.FAILED, nEx.getSuppressed().toString(), LocalDateTime.now(), site.getId());
+            //sitesRepository.updateFailed(Status.FAILED, nEx.getSuppressed().toString(), LocalDateTime.now(), site.getId());
             log.error(nEx.getSuppressed().toString());
             log.error("Parsing of the site: " + site.getName() + ", stopped in: " +
                     ((System.currentTimeMillis() - start) / 1000) + " s.");
             log.error("Added number of entries: " + listUrls.size() + ", for site: " + site.getName());
         }
+     }
+     public List<IndexedPage> getListPages() {
+        return new ArrayList<>(listPages);
      }
 
 //    public List<Pages> getListIndexingPages () {

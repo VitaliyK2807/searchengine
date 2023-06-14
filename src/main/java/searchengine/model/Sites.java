@@ -19,7 +19,7 @@ public class Sites {
     @Column(name = "id", nullable = false)
     private int id;
 
-    @OneToMany(mappedBy = "site", fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "site", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Pages> pages = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
