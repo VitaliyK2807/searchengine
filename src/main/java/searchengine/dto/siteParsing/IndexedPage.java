@@ -1,10 +1,7 @@
 package searchengine.dto.siteParsing;
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import searchengine.model.Sites;
-
 import java.util.Objects;
 
 @Getter
