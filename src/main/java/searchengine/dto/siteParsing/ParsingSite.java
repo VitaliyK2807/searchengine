@@ -99,7 +99,7 @@ public class ParsingSite extends RecursiveAction {
             page.setSite(site);
             try {
                 Document document = Jsoup.connect(url)
-                        .timeout(15_000)
+                        .timeout(25_000)
                         .userAgent("Chrome/109.0.5414.120 Safari/532.5")
                         .referrer("http://www.google.com")
                         .ignoreContentType(true)
@@ -124,7 +124,7 @@ public class ParsingSite extends RecursiveAction {
 
             } catch (SocketTimeoutException ste) {
                 log.error(ste.getMessage() + " - " + url);
-                indexedPage.setCode(0);
+                indexedPage.setCode(504);
                 indexedPage.setContent(ste.getMessage());
                 //page.setCode(0);
                 //page.setContent(ste.getMessage());

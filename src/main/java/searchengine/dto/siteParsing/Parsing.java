@@ -54,13 +54,13 @@ public class Parsing {
             //sitesRepository.updateStatusById(Status.INDEXED, site.getId());
             log.info("Parsing of the site: " + site.getName() + ", completed in: " +
                     ((System.currentTimeMillis() - start) / 1000) + " s.");
-            log.info("Added number of entries: " + listUrls.size() + ", for site: " + site.getName());
+            log.info("Added number of entries: " + listPages.size() + ", for site: " + site.getName());
         } catch (NullPointerException nEx) {
             //sitesRepository.updateFailed(Status.FAILED, nEx.getSuppressed().toString(), LocalDateTime.now(), site.getId());
             log.error(nEx.getSuppressed().toString());
             log.error("Parsing of the site: " + site.getName() + ", stopped in: " +
                     ((System.currentTimeMillis() - start) / 1000) + " s.");
-            log.error("Added number of entries: " + listUrls.size() + ", for site: " + site.getName());
+            log.error("Added number of entries: " + listPages.size() + ", for site: " + site.getName());
         }
      }
      public List<IndexedPage> getListPages() {

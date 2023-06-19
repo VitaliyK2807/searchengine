@@ -18,8 +18,8 @@ public class TestParsingSite {
     @BeforeEach
     protected void setup () {
         site.setId(1);
-        site.setName("Skillbox.ru");
-        site.setUrl("https://www.skillbox.ru");
+        site.setName("PlayBack.Ru");
+        site.setUrl("https://www.playback.ru");
         site.setStatus(Status.INDEXED);
         site.setLastError("");
         site.setStatusTime(LocalDateTime.now());
