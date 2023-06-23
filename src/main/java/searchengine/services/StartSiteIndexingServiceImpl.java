@@ -6,6 +6,7 @@ import searchengine.config.Site;
 import searchengine.config.SitesList;
 import searchengine.dto.indexingSites.IndexingSitesResponse;
 import searchengine.dto.indexingSites.IndexingStopResponse;
+import searchengine.dto.siteParsing.Interrupter;
 import searchengine.dto.siteParsing.Parsing;
 import searchengine.model.Sites;
 import searchengine.model.Status;
@@ -22,6 +23,8 @@ import java.util.Map;
 public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
 
     private final int countProcessors = Runtime.getRuntime().availableProcessors();
+    private Parsing parsing;
+    private Thread interrupter;
     private Thread[] poolThreads;
     private int countSites = 1;
     private boolean isSiteIndexing = true;
@@ -59,24 +62,29 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
 
     @Override
     public IndexingStopResponse indexingStop() {
-        if (!isSiteIndexing) {
-            stopThreads();
+        if (isSiteIndexing) {
             log.info("Indexing stopped by user");
-            return new IndexingStopResponse(true);
+            interrupter.start();
+            //stopThreads();
+
+            parsing.stopped();
+
+            return new IndexingStopResponse(isSiteIndexing);
         }
         log.error("Invalid request! Indexing not running!");
-        return new IndexingStopResponse(false, "Индексация не запущена!");
+        return new IndexingStopResponse(isSiteIndexing, "Индексация не запущена!");
     }
 
     private void stopThreads () {
-        for (int i = 0; i < sitesList.getSites().size(); i++) {
-            if (poolThreads[i].isAlive()) {
-                Sites sites = listSites.get(poolThreads[i].getName());
-                sites.setStatus(Status.FAILED);
-                sites.setLastError("Индексация остановлена пользователем");
-                poolThreads[i] = null;
-            }
-        }
+
+//        for (int i = 0; i < sitesList.getSites().size(); i++) {
+//            if (poolThreads[i].isAlive()) {
+//                Sites sites = listSites.get(poolThreads[i].getName());
+//                sites.setStatus(Status.FAILED);
+//                sites.setLastError("Индексация остановлена пользователем");
+//                poolThreads[i] = null;
+//            }
+//        }
     }
 
     private void runningThreads () {
@@ -130,9 +138,9 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
             sitesMemory.setStatusTime(LocalDateTime.now());
             sitesRepository.save(sitesMemory);
             listSites.put(site.getUrl(), sitesMemory);
-            Parsing parsing = new Parsing(sitesMemory);
-                    //, sitesRepository, pagesRepository);
-            parsing.startParsing();
+            parsing = new Parsing(sitesMemory, sitesRepository, pagesRepository);
+            interrupter = new Thread(new Interrupter(parsing));
+            parsing.started();
 
         } else {
             Sites newSite = new Sites();
@@ -142,9 +150,9 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
             newSite.setStatusTime(LocalDateTime.now());
             sitesRepository.save(newSite);
             listSites.put(site.getUrl(), newSite);
-            Parsing parsing = new Parsing(newSite);
-                    //, sitesRepository, pagesRepository);
-            parsing.startParsing();
+            parsing = new Parsing(newSite, sitesRepository, pagesRepository);
+            interrupter = new Thread(new Interrupter(parsing));
+            parsing.started();
 
         }
     }

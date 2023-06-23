@@ -8,7 +8,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import searchengine.model.Pages;
 import searchengine.model.Sites;
+import searchengine.model.Status;
+import searchengine.repositories.PagesRepository;
+import searchengine.repositories.SitesRepository;
 import java.net.SocketTimeoutException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
@@ -20,34 +24,26 @@ import java.util.regex.Pattern;
 @Slf4j
 @Data
 public class ParsingSite extends RecursiveAction {
-    //private CopyOnWriteArraySet<String> listUrls;
-    private CopyOnWriteArraySet<IndexedPage> listPages;
-
+    private CopyOnWriteArraySet<String> listUrls;
     private String url;
     private String domain;
     private Sites site;
-    private IndexedPage indexedPage = new IndexedPage();
-
-
-//    private final PagesRepository pagesRepository;
-
-//    private final SitesRepository sitesRepository;
+    private final PagesRepository pagesRepository;
+    private final SitesRepository sitesRepository;
 
     public ParsingSite(String url,
                        String domain,
-                       CopyOnWriteArraySet<IndexedPage> listPages,
-                       //CopyOnWriteArraySet<String> listUrls,
-                       Sites site) {
-//            ,
-//                       SitesRepository sitesRepository,
-//                       PagesRepository pagesRepository) {
+                       CopyOnWriteArraySet<String> listUrls,
+                       Sites site,
+                       SitesRepository sitesRepository,
+                       PagesRepository pagesRepository) {
         this.url = url;
         this.domain = domain;
-        this.listPages = listPages;
-//        this.listUrls = listUrls;
+        this.listUrls = listUrls;
         this.site = site;
-//        this.sitesRepository = sitesRepository;
-//        this.pagesRepository = pagesRepository;
+        this.sitesRepository = sitesRepository;
+        this.pagesRepository = pagesRepository;
+
     }
 
     @Override
@@ -57,20 +53,20 @@ public class ParsingSite extends RecursiveAction {
         List<ParsingSite> listTasks = new ArrayList<>();
 
         if (urlLinks.size() != 0) {
-            urlLinks.forEach(child -> {
-                ParsingSite parsingSite = new ParsingSite(child,
-                                                            domain,
-                                                            listPages,
-                                                            site);
-//                        ,
-//                                                            sitesRepository,
-//                                                            pagesRepository);
-                parsingSite.fork();
-                listTasks.add(parsingSite);
-            });
+                urlLinks.forEach(child -> {
+                    ParsingSite parsingSite = new ParsingSite(child,
+                            domain,
+                            listUrls,
+                            site,
+                            sitesRepository,
+                            pagesRepository);
+                    parsingSite.fork();
+                    listTasks.add(parsingSite);
+                });
 
-        }
-        listTasks.forEach(ParsingSite::join);
+            }
+            listTasks.forEach(ParsingSite::join);
+
     }
 
     private TreeSet<String> parsingLinksSite() {
@@ -80,7 +76,7 @@ public class ParsingSite extends RecursiveAction {
             String receivedURL = getUrls(element.attr("href"));
             if (receivedURL != ""
                     && receivedURL != null
-                    && !listPages.equals(testPath(receivedURL))
+                    && !listUrls.equals(testPath(receivedURL))
                     && (receivedURL.endsWith(".html") || receivedURL.endsWith("/"))
                     && !(receivedURL.equals(getDomainUrl()) || receivedURL.equals(getDomainUrlWWW()))) {
                 childesLinks.add(receivedURL);
@@ -91,9 +87,7 @@ public class ParsingSite extends RecursiveAction {
     }
 
     private Elements connect() {
-        //if (listUrls.add(getResultPath())) {
-        indexedPage.setPath(url);
-        if (listPages.add(indexedPage)) {
+        if (listUrls.add(getResultPath())) {
             Pages page = new Pages();
             page.setPath(getResultPath());
             page.setSite(site);
@@ -104,42 +98,37 @@ public class ParsingSite extends RecursiveAction {
                         .referrer("http://www.google.com")
                         .ignoreContentType(true)
                         .get();
-                indexedPage.setCode(document.connection().response().statusCode());
-                indexedPage.setContent(document.outerHtml());
-                //page.setContent(document.outerHtml());
-                //page.setCode(document.connection().response().statusCode());
-                //pagesRepository.save(page);
-                //sitesRepository.updateTime(LocalDateTime.now(), site.getId());
+                page.setContent(document.outerHtml());
+                page.setCode(document.connection().response().statusCode());
+                pagesRepository.save(page);
+                sitesRepository.updateTime(LocalDateTime.now(), site.getId());
+
                 return document.select("a");
 
             } catch (HttpStatusException hse) {
                 log.error(hse.getMessage());
-                indexedPage.setCode(hse.getStatusCode());
-                indexedPage.setContent(hse.getMessage());
-                //page.setCode(hse.getStatusCode());
-                //page.setContent(hse.getMessage());
-                //pagesRepository.save(page);
-                //sitesRepository.updateTime(LocalDateTime.now(), site.getId());
+                page.setCode(hse.getStatusCode());
+                page.setContent(hse.getMessage());
+                pagesRepository.save(page);
+                sitesRepository.updateTime(LocalDateTime.now(), site.getId());
+
                 return new Elements();
 
             } catch (SocketTimeoutException ste) {
                 log.error(ste.getMessage() + " - " + url);
-                indexedPage.setCode(504);
-                indexedPage.setContent(ste.getMessage());
-                //page.setCode(0);
-                //page.setContent(ste.getMessage());
-                //pagesRepository.save(page);
-                //sitesRepository.updateTime(LocalDateTime.now(), site.getId());
-                return new Elements();
+                page.setCode(0);
+                page.setContent(ste.getMessage());
+                pagesRepository.save(page);
+                sitesRepository.updateTime(LocalDateTime.now(), site.getId());
 
-            } catch (Exception ex) {
+                return new Elements();
+            }  catch (Exception ex) {
                 log.error("Other exceptions URL -> " + url + " " + ex.getMessage());
-                indexedPage.setCode(0);
-                indexedPage.setContent(ex.getMessage());
-                //page.setCode(0);
-                //page.setContent(ex.getMessage());
-                //pagesRepository.save(page);
-                //sitesRepository.updateTime(LocalDateTime.now(), site.getId());
+                page.setCode(0);
+                page.setContent(ex.getMessage());
+                pagesRepository.save(page);
+                sitesRepository.updateFailed(Status.FAILED, ex.getMessage(), LocalDateTime.now(), site.getId());
+
                 return new Elements();
             }
         }
@@ -165,24 +154,24 @@ public class ParsingSite extends RecursiveAction {
 
         return result;
     }
-    private String getRegexUrl () {
+    private String getRegexUrl() {
         return "http[s]?://" + "[www.]?" + domain.toLowerCase() + "/[^,\\s\"><«»а-яА-Я]+";
     }
 
-    private String getDomainUrl () {
+    private String getDomainUrl() {
         return url.substring(0, url.indexOf("/") + 2) + domain.toLowerCase();
     }
-    private String getDomainUrlWWW () {
+    private String getDomainUrlWWW() {
         return url.substring(0, url.indexOf("/") + 2) + "www." + domain.toLowerCase();
     }
-    private String getResultPath () {
+    private String getResultPath() {
         if (url.substring(url.indexOf("/") + 2, url.indexOf("/") + 5).equals("www")) {
             return url.substring(getDomainWWW().length());
         }
         return url.substring(getDomainUrl().length());
     }
 
-    private String getDomainWWW () {
+    private String getDomainWWW() {
         return url.substring(0, url.indexOf("/") + 2) + "www." + domain.toLowerCase();
     }
 
