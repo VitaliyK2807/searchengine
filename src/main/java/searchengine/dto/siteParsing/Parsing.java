@@ -10,20 +10,23 @@ import searchengine.repositories.SitesRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ForkJoinPool;
 
 @Slf4j
 @Data
-public class Parsing extends Thread{
+public class Parsing {
     private Sites site;
-
     long start;
     private CopyOnWriteArraySet<String> listUrls;
     private ForkJoinPool pool = new ForkJoinPool();
     private final PagesRepository pagesRepository;
     private final SitesRepository sitesRepository;
     private ParsingSite parsingSite;
+    private boolean stopFJPUser = false;
+
 
     public Parsing(Sites site, SitesRepository sitesRepository, PagesRepository pagesRepository) {
         this.site = site;
@@ -40,57 +43,59 @@ public class Parsing extends Thread{
     public void started () {
         log.info("Site " + site.getName() + " parsing start" );
         start = System.currentTimeMillis();
-        parsingSite = new ParsingSite(site.getUrl(),
-                site.getName(),
-                listUrls,
-                site,
-                sitesRepository,
-                pagesRepository);
         try {
+            pool.invoke(parsingSite = new ParsingSite(site.getUrl(),
+                    site.getName(),
+                    listUrls,
+                    site,
+                    sitesRepository,
+                    pagesRepository));
 
-            pool.invoke(parsingSite);
-            sitesRepository.updateStatusById(Status.INDEXED, site.getId());
-            log.info("Parsing of the site: " + site.getName() + ", completed in: " +
-                    ((System.currentTimeMillis() - start) / 1000) + " s.");
-            log.info("Added number of entries: " + listUrls.size() + ", for site: " + site.getName());
+            if (stopFJPUser) {
+                printMassageInfo(", was stopped by the user after: ");
+                sitesRepository.updateFailed(Status.FAILED,
+                        "Остановлено пользователем!",
+                        LocalDateTime.now(),
+                        site.getId());
+            } else {
+                printMassageInfo(", completed in: ");
+                sitesRepository.updateStatusById(Status.INDEXED, site.getId());
+            }
 
         } catch (NullPointerException nEx) {
-            sitesRepository.updateFailed(Status.FAILED, nEx.getSuppressed().toString(), LocalDateTime.now(), site.getId());
             log.error(nEx.getSuppressed().toString());
-            log.error("Parsing of the site: " + site.getName() + ", stopped in: " +
-                    ((System.currentTimeMillis() - start) / 1000) + " s.");
-            log.error("Added number of entries: " + listUrls.size() + ", for site: " + site.getName());
+            printMessageError();
+
+            sitesRepository.updateFailed(Status.FAILED,
+                    nEx.getSuppressed().toString(),
+                    LocalDateTime.now(),
+                    site.getId());
+
         }
     }
 
-    @Override
-    public void run() {
-
-    }
-
     public void stopped () {
-        parsingSite = null;
+        parsingSite.stop = true;
+
+        stopFJPUser = true;
+
         pool.shutdown();
-        pool = null;
-        log.info("Parsing of the site: " + site.getName() + ", was stopped by the user after: " +
-                ((System.currentTimeMillis() - start) / 1000) + " s.");
-        log.info("Added number of entries: " + listUrls.size() + ", for site: " + site.getName());
-        sitesRepository.updateStatusById(Status.FAILED, site.getId());
+
     }
 
     public List<String> getListPages() {
         return new ArrayList<>(listUrls);
     }
 
-//    public List<Pages> getListIndexingPages () {
-//        return listPages.stream().map(indexedPage -> {
-//            Pages pages = new Pages();
-//            pages.setPath(indexedPage.getPath());
-//            pages.setCode(indexedPage.getCode());
-//            pages.setContent(indexedPage.getContent());
-//            pages.setSite(site);
-//            return pages;
-//        }).collect(Collectors.toList());
-//    }
+    private void printMassageInfo (String message) {
+        log.info("Parsing of the site: " + site.getName() + message +
+                ((System.currentTimeMillis() - start) / 1000) + " s.");
+        log.info("Added number of entries: " + listUrls.size() + ", for site: " + site.getName());
+    }
+    private void printMessageError () {
+        log.error("Parsing of the site: " + site.getName() + ", stopped in: " +
+                ((System.currentTimeMillis() - start) / 1000) + " s.");
+        log.error("Added number of entries: " + listUrls.size() + ", for site: " + site.getName());
+    }
 
 }

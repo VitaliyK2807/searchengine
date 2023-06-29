@@ -64,7 +64,7 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
     public IndexingStopResponse indexingStop() {
         if (isSiteIndexing) {
             log.info("Indexing stopped by user");
-            interrupter.start();
+            //interrupter.start();
             //stopThreads();
 
             parsing.stopped();
@@ -139,7 +139,7 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
             sitesRepository.save(sitesMemory);
             listSites.put(site.getUrl(), sitesMemory);
             parsing = new Parsing(sitesMemory, sitesRepository, pagesRepository);
-            interrupter = new Thread(new Interrupter(parsing));
+
             parsing.started();
 
         } else {
@@ -151,7 +151,7 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
             sitesRepository.save(newSite);
             listSites.put(site.getUrl(), newSite);
             parsing = new Parsing(newSite, sitesRepository, pagesRepository);
-            interrupter = new Thread(new Interrupter(parsing));
+
             parsing.started();
 
         }

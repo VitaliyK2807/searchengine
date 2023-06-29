@@ -30,6 +30,7 @@ public class ParsingSite extends RecursiveAction {
     private Sites site;
     private final PagesRepository pagesRepository;
     private final SitesRepository sitesRepository;
+    static boolean stop;
 
     public ParsingSite(String url,
                        String domain,
@@ -48,6 +49,10 @@ public class ParsingSite extends RecursiveAction {
 
     @Override
     protected void compute() {
+
+        if (stop) {
+            return;
+        }
 
         TreeSet<String> urlLinks = parsingLinksSite();
         List<ParsingSite> listTasks = new ArrayList<>();
@@ -74,11 +79,7 @@ public class ParsingSite extends RecursiveAction {
         TreeSet<String> childesLinks = new TreeSet<>();
         connect().forEach(element -> {
             String receivedURL = getUrls(element.attr("href"));
-            if (receivedURL != ""
-                    && receivedURL != null
-                    && !listUrls.equals(testPath(receivedURL))
-                    && (receivedURL.endsWith(".html") || receivedURL.endsWith("/"))
-                    && !(receivedURL.equals(getDomainUrl()) || receivedURL.equals(getDomainUrlWWW()))) {
+            if (testElements(receivedURL)) {
                 childesLinks.add(receivedURL);
             }
         });
@@ -154,6 +155,33 @@ public class ParsingSite extends RecursiveAction {
 
         return result;
     }
+
+    private boolean testElements (String element) {
+        if (element != ""
+                && element != null
+                && !listUrls.equals(testPath(element))
+                && (endsWith(element, element.endsWith(".html")) || element.endsWith("/"))
+                && !(element.equals(getDomainUrl()) || element.equals(getDomainUrlWWW()))) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean endsWith (String element, boolean ends) {
+        if (ends) {
+            return true;
+        }
+
+        String regex = "[a-zA-Z-?!=%0-9]+";
+        int lastSlash = element.lastIndexOf('/');
+        String string = element.substring(lastSlash + 1);
+
+        if (string.matches(regex)) {
+            return true;
+        }
+        return false;
+    }
     private String getRegexUrl() {
         return "http[s]?://" + "[www.]?" + domain.toLowerCase() + "/[^,\\s\"><«»а-яА-Я]+";
     }
@@ -181,4 +209,6 @@ public class ParsingSite extends RecursiveAction {
         }
         return path.substring(getDomainUrl().length());
     }
+
+
 }
