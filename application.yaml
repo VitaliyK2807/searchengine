@@ -11,7 +11,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
 
 logging:
@@ -20,15 +20,15 @@ logging:
 
 indexing-settings:
   sites:
-#    - url: https://www.lenta.ru
-#      name: Лента.ру
+    - url: https://www.lenta.ru
+      name: Лента.ру
     - url: https://www.skillbox.ru
       name: Skillbox.ru
-#    - url: https://www.playback.ru
-#      name: PlayBack.Ru
-#    - url:  http://www.radiomv.ru
-#      name: Radiomv.ru
-#    - url: https://www.ipfran.ru
-#      name: Ipfran.ru
-#    - url:  https://www.dimonvideo.ru/
-#      name: Dimonvideo.ru
+    - url: https://www.playback.ru
+      name: PlayBack.Ru
+    - url:  http://www.radiomv.ru
+      name: Radiomv.ru
+    - url: https://www.ipfran.ru
+      name: Ipfran.ru
+    - url:  https://www.dimonvideo.ru/
+      name: Dimonvideo.ru

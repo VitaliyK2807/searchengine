@@ -22,7 +22,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
-@Data
 public class ParsingSite extends RecursiveAction {
     private CopyOnWriteArraySet<String> listUrls;
     private String url;
@@ -210,5 +209,7 @@ public class ParsingSite extends RecursiveAction {
         return path.substring(getDomainUrl().length());
     }
 
-
+    public Sites getSite() {
+        return site;
+    }
 }
