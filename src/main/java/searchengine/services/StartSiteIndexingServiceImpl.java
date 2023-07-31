@@ -2,7 +2,6 @@ package searchengine.services;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import searchengine.config.Site;
 import searchengine.config.SitesList;
 import searchengine.dto.indexingSites.IndexingSitesResponse;
 import searchengine.dto.indexingSites.IndexingStopResponse;
@@ -12,15 +11,21 @@ import searchengine.model.Status;
 import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
 @Slf4j
 public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
 
-    private Parsing parsing;
     private boolean isSiteIndexing = true;
-
+    private Parsing[] parsings;
+    private static final int COUNT_PROCESSORS = 3;
+    //Runtime.getRuntime().availableProcessors();
+    private List<Sites> listWebSites;
+    private Thread watchingThread;
+    private Runnable parsingWebSites;
     @Autowired
     SitesRepository sitesRepository;
     @Autowired
@@ -40,11 +45,15 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
         } else if (isSiteIndexing) {
             isSiteIndexing = false;
 
+            parsings = new Parsing[sitesList.getSites().size()];
+
             pagesRepository.deleteAll();
             sitesRepository.deleteAll();
 
-            parsing = new Parsing(sitesList, isSiteIndexing, sitesRepository, pagesRepository);
-            parsing.run();
+            threadLoading();
+
+            watchingThread = new Thread(parsingWebSites);
+            watchingThread.start();
 
             return new IndexingSitesResponse(true);
         }
@@ -56,47 +65,117 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
 
     @Override
     public IndexingStopResponse indexingStop() {
+
         if (!isSiteIndexing) {
             log.info("Indexing stopped by user");
 
-            parsing.interrupt();
+            watchingThread.interrupt();
 
             isSiteIndexing = true;
 
             return new IndexingStopResponse(true);
         }
         log.error("Invalid request! Indexing not running!");
-        return new IndexingStopResponse(isSiteIndexing, "Индексация не запущена!");
+        return new IndexingStopResponse(false, "Индексация не запущена!");
     }
 
-    private void stopThreads () {
+    private void threadLoading () {
+        parsingWebSites = new Runnable() {
+            @Override
+            public void run() {
+                long start = System.currentTimeMillis();
+                int countThread = 0;
+                int countOperations = 0;
 
-//        for (int i = 0; i < sitesList.getSites().size(); i++) {
-//            if (poolThreads[i].isAlive()) {
-//                Sites sites = listSites.get(poolThreads[i].getName());
-//                sites.setStatus(Status.FAILED);
-//                sites.setLastError("Индексация остановлена пользователем");
-//                poolThreads[i] = null;
-//            }
-//        }
+                log.info("Website indexing started");
+                log.info("Number of sites to index: " + sitesList.getSites().size());
+
+                listWebSites = getSites();
+
+
+                while (countOperations != listWebSites.size() || countThread != 0) {
+
+                    if (watchingThread.isInterrupted()) {
+
+                        stopped(countOperations);
+                        break;
+                    }
+
+                    if (countThread < COUNT_PROCESSORS && countOperations < listWebSites.size()) {
+
+                        startedThread(countOperations, listWebSites.get(countOperations));
+
+                        countThread++;
+                        countOperations++;
+
+                    }
+
+                    if (countThread == COUNT_PROCESSORS) {
+
+                        countThread = countWorkerThreads(countThread);
+                    }
+
+                    if (countOperations == listWebSites.size()) {
+                        countThread = countWorkerThreads(countThread);
+                    }
+
+                }
+
+                log.info("Website indexing completed!");
+                log.info("Time spent: " + ((System.currentTimeMillis() - start) / 1000) + " s.");
+            }
+        };
+    }
+    private void startedThread (int numberOperations, Sites webSite) {
+
+        parsings[numberOperations] = new Parsing(webSite, sitesRepository, pagesRepository);
+        parsings[numberOperations].start();
+
     }
 
-    private void runningThreads () {
-
-
+    private void stopped (int countOperations) {
+        for (int i = 0; i < countOperations; i++) {
+            if (parsings[i].isRun) {
+                parsings[i].stopped();
+            }
+        }
     }
 
-    private void siteUpdate (Site site) {
-        Sites newSite = new Sites();
+    private List<Sites> getSites() {
 
-        newSite.setStatus(Status.INDEXING);
-        newSite.setUrl(site.getUrl());
-        newSite.setName(site.getName());
-        newSite.setStatusTime(LocalDateTime.now());
+        return sitesList.getSites()
+                .stream()
+                .map(site -> {
+                    Sites newSite = new Sites();
+                    newSite.setStatus(Status.INDEXING);
+                    newSite.setStatusTime(LocalDateTime.now());
+                    newSite.setLastError("");
+                    newSite.setUrl(site.getUrl());
+                    newSite.setName(site.getName());
 
-        sitesRepository.save(newSite);
+                    sitesRepository.save(newSite);
 
-parsing.run();
+                    return newSite;
+                })
+                .collect(Collectors.toList());
+    }
+
+
+    private int countWorkerThreads (int countThreads) {
+        int count = 0;
+
+        for (int i = 0; i < countThreads; i++) {
+            if (parsings[i].isAlive()) {
+                count++;
+
+            }
+        }
+
+        if (count < COUNT_PROCESSORS) {
+            return  COUNT_PROCESSORS - (COUNT_PROCESSORS - count);
+        }
+
+        return COUNT_PROCESSORS;
     }
 
 }

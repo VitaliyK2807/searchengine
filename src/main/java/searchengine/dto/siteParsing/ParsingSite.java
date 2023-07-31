@@ -1,6 +1,5 @@
 package searchengine.dto.siteParsing;
 
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
@@ -11,6 +10,8 @@ import searchengine.model.Sites;
 import searchengine.model.Status;
 import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
+
+import javax.net.ssl.SSLHandshakeException;
 import java.net.SocketTimeoutException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class ParsingSite extends RecursiveAction {
     private Sites site;
     private final PagesRepository pagesRepository;
     private final SitesRepository sitesRepository;
+    public boolean fatalError;
     static boolean stop;
 
     public ParsingSite(String url,
@@ -122,12 +124,15 @@ public class ParsingSite extends RecursiveAction {
                 sitesRepository.updateTime(LocalDateTime.now(), site.getId());
 
                 return new Elements();
-            }  catch (Exception ex) {
+
+           } catch (Exception ex) {
                 log.error("Other exceptions URL -> " + url + " " + ex.getMessage());
+
                 page.setCode(0);
                 page.setContent(ex.getMessage());
                 pagesRepository.save(page);
                 sitesRepository.updateFailed(Status.FAILED, ex.getMessage(), LocalDateTime.now(), site.getId());
+                fatalError = true;
 
                 return new Elements();
             }

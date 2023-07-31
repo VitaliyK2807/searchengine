@@ -19,171 +19,99 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class Parsing extends Thread{
-    private SitesList sitesList;
-    private long start;
+    private Sites webSite;
+    private ParsingSite parsingSite;
+    private boolean stopFJPUser = false;
+    private ForkJoinPool forkJoinPool;
+
+    public boolean isRun;
     private CopyOnWriteArraySet<String> listUrls;
-    private ForkJoinPool pool = new ForkJoinPool();
+
     private final PagesRepository pagesRepository;
     private final SitesRepository sitesRepository;
 
-    private boolean stopFJPUser = false;
-    private boolean isSiteIndexing;
-    private static final int COUNT_PROCESSORS = 3;
-    //Runtime.getRuntime().availableProcessors();
-    private List<ParsingSite> parsingList;
-    private Thread[] poolThreads;
-    private int countSites = 1;
 
-    public Parsing(SitesList sitesList, boolean isSiteIndexing, SitesRepository sitesRepository, PagesRepository pagesRepository) {
-        this.sitesList = sitesList;
+    public Parsing(Sites webSite, SitesRepository sitesRepository, PagesRepository pagesRepository) {
+        this.webSite = webSite;
         listUrls = new CopyOnWriteArraySet<>();
         this.sitesRepository = sitesRepository;
         this.pagesRepository = pagesRepository;
-        this.isSiteIndexing = isSiteIndexing;
-    }
-    private void stopped () {
-
-        stopFJPUser = true;
-
-        for (int i = 0; i < countSites; i++) {
-            if (poolThreads[i].isAlive()) {
-                parsingList.get(i).stop = true;
-                poolThreads[i].interrupt();
-                Sites webSite = sitesRepository.findByUrl(sitesList.getSites().get(i).getUrl());
-                printMassageInfo(", was stopped by the user after: ", sitesList.getSites().get(i), start);
-                sitesRepository.updateFailed(Status.FAILED,
-                        "Остановлено пользователем!",
-                        LocalDateTime.now(),
-                        webSite.getId());
-            }
-        }
-
-
+        isRun = false;
     }
 
     @Override
     public void run() {
-        new Thread(() -> {
-            log.info("Website indexing started");
-            log.info("Number of sites to index: " + sitesList.getSites().size());
 
-            start = System.currentTimeMillis();
-            parsingList = getParsingList();
-            int countThread = 0;
-            int countOperations = parsingList.size();
+        isRun = true;
 
-            while (countOperations != 0 && countThread != 0) {
-                if (isInterrupted()) {
-                    log.info("STOP!");
-                    stopped();
-                    break;
-                }
+        long startParsing = System.currentTimeMillis();
 
-                if (countThread < COUNT_PROCESSORS && countOperations != 0) {
-                    countThread++;
-                    countOperations--;
+        log.info("WebSite " + webSite.getName() + " parsing start.");
 
-                    startedThread(countOperations, parsingList.get(countOperations));
+        parsingSite = new ParsingSite(webSite.getUrl(),
+                                                    webSite.getName(),
+                                                    listUrls,
+                                                    webSite,
+                                                    sitesRepository,
+                                                    pagesRepository);
+        try {
+            forkJoinPool = new ForkJoinPool();
 
-                } else if (countThread == COUNT_PROCESSORS) {
-                    countThread = countWorkerThreads();
-                }
+            forkJoinPool.invoke(parsingSite);
 
-                if (countOperations == 0) {
-                    countThread = countWorkerThreads();
-                }
-            }
-            log.info("Website indexing completed!");
-            log.info("Time spent: " + ((start - System.currentTimeMillis()) / 1000) + " s.");
-        }).start();
-}
-    private void startedThread (int numberOperations, ParsingSite parsingSite) {
-
-        poolThreads[numberOperations] = new Thread(() -> {
-            Site site = sitesList.getSites().get(numberOperations);
-            Sites webSite = sitesRepository.findByUrl(site.getUrl());
-            try {
-                long startParsing = System.currentTimeMillis();
-                log.info("Site " + site.getName() + " parsing start.");
-                parsingSite.invoke();
-
-                printMassageInfo(", completed in: ", site, startParsing);
-                sitesRepository.updateStatusById(Status.INDEXED, webSite.getId());
-
-            } catch (NullPointerException nEx) {
-                log.error(nEx.getSuppressed().toString());
-                printMessageError(site);
-
+            if (parsingSite.fatalError) {
+                printMassageInfo(", stopped after critical error: ", startParsing);
                 sitesRepository.updateFailed(Status.FAILED,
-                        nEx.getSuppressed().toString(),
+                        "Остановлено после критической ошибки!",
                         LocalDateTime.now(),
                         webSite.getId());
+            } else if (stopFJPUser) {
 
+                printMassageInfo(", was stopped by the user after: ", startParsing);
+                sitesRepository.updateFailed(Status.FAILED,
+                        "Остановлено пользователем!",
+                        LocalDateTime.now(),
+                        webSite.getId());
+            } else {
+                printMassageInfo(", completed in: ", startParsing);
+
+                sitesRepository.updateStatusById(Status.INDEXED, webSite.getId());
             }
-        });
-        poolThreads[numberOperations].start();
 
-    }
-    private List<ParsingSite> getParsingList() {
-      return sitesList.getSites().stream().map(site -> {
-          Sites webSite = getSite(site);
-          ParsingSite parsingSite = new ParsingSite(site.getUrl(),
-                  site.getName(),
-                  listUrls,
-                  webSite,
-                  sitesRepository,
-                  pagesRepository);
-          return parsingSite;
-      }).collect(Collectors.toList());
-    }
+        isRun = false;
+        } catch (NullPointerException nEx) {
+            log.error(nEx.getSuppressed().toString());
+            printMessageError(startParsing);
 
-    private Sites getSite (Site site) {
-        Sites newSite = new Sites();
-        newSite.setStatus(Status.INDEXING);
-        newSite.setStatusTime(LocalDateTime.now());
-        newSite.setLastError("");
-        newSite.setUrl(site.getUrl());
-        newSite.setName(site.getName());
+            sitesRepository.updateFailed(Status.FAILED,
+                    "NullPointerException",
+                    LocalDateTime.now(),
+                    webSite.getId());
 
-        sitesRepository.save(newSite);
-
-        return newSite;
-    }
-
-
-    private int countWorkerThreads () {
-        int count = 0;
-
-        for (int i = 0; i < sitesList.getSites().size(); i++) {
-            if (poolThreads[i].isAlive()) {
-                count++;
-            }
+            isRun = false;
         }
 
-        if (count < COUNT_PROCESSORS) {
-            return  COUNT_PROCESSORS - (COUNT_PROCESSORS - count);
-        }
-
-        return COUNT_PROCESSORS;
     }
 
+    public void stopped () {
 
-    private void printMassageInfo (String message, Site site, long startParsing) {
-        log.info("Parsing of the site: " + site.getName() + message +
+        parsingSite.stop = true;
+
+        forkJoinPool.shutdown();
+
+        stopFJPUser = true;
+
+    }
+
+    private void printMassageInfo (String message, long startParsing) {
+        log.info("Parsing of the site: " + webSite.getName() + message +
                 ((System.currentTimeMillis() - startParsing) / 1000) + " s.");
-        log.info("Added number of entries: " + listUrls.size() + ", for site: " + site.getName());
+        log.info("Added number of entries: " + listUrls.size() + ", for site: " + webSite.getName());
     }
-    private void printMessageError (Site site) {
-        log.error("Parsing of the site: " + site.getName() + ", stopped in: " +
-                ((System.currentTimeMillis() - start) / 1000) + " s.");
-        log.error("Added number of entries: " + listUrls.size() + ", for site: " + site.getName());
-    }
-
-    public List<String> getListPages() {
-        return new ArrayList<>(listUrls);
+    private void printMessageError (long startParsing) {
+        log.error("Parsing of the site: " + webSite.getName() + ", stopped in: " +
+                ((System.currentTimeMillis() - startParsing) / 1000) + " s.");
+        log.error("Added number of entries: " + listUrls.size() + ", for site: " + webSite.getName());
     }
 
-    public boolean isSiteIndexing() {
-        return isSiteIndexing;
-    }
 }
