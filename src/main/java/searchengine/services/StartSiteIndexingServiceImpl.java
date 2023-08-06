@@ -36,13 +36,12 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
     @Override
     public IndexingSitesResponse indexingStart() {
 
-        boolean resultResponse = sitesList.getSites().isEmpty();
-
-        if (resultResponse) {
+        if (sitesList.getSites().isEmpty()) {
             log.error("Missing list of sites");
             return new IndexingSitesResponse(false,
                     "Отсутствует список сайтов");
-        } else if (isSiteIndexing) {
+        }
+        if (isSiteIndexing) {
             isSiteIndexing = false;
 
             parsings = new Parsing[sitesList.getSites().size()];

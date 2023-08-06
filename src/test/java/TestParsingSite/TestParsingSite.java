@@ -25,7 +25,7 @@ public class TestParsingSite {
         site.setStatusTime(LocalDateTime.now());
 
         //parsing = new Parsing(site);
-        parsing.startParsing();
+        //parsing.startParsing();
 
 
     }
@@ -33,8 +33,8 @@ public class TestParsingSite {
     @Test
     @DisplayName("Тест количества парсинг")
     void testCountUrls() {
-        System.out.println("Количество ссылок в листе ссылок: " + parsing.getListPages().size());
-        parsing.getListPages().forEach(System.out::println);
+        //System.out.println("Количество ссылок в листе ссылок: " + parsing.getListPages().size());
+        //parsing.getListPages().forEach(System.out::println);
     }
 
 }

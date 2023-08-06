@@ -1,0 +1,29 @@
+<html lang="ru"><head><meta charset="utf-8"><meta name="mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=yes">
+<meta name="format-detection" content="telephone=no, email=no"><meta name="theme-color" content="#00204C">
+<link rel="preconnect" href="https://static.ngs.ru"><link rel="preconnect" href="https://static.ngs.ru" crossorigin>
+<link rel="preconnect" href="https://yandex.ru"><link rel="preconnect" href="https://mc.yandex.ru">
+<link rel="preconnect" href="https://yastatic.net"><link rel="preconnect" href="https://yastatic.net" crossorigin>
+<link rel="preconnect" href="https://cstatic.weborama.com"><link rel="preconnect" href="https://cdn.onesignal.com">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<title>Новые утилизационные сборы с 1 августа 2023 года сделают невыгодными параллельный импорт машин частными лицами - 1 августа 2023 - НГС
+</title><meta name="Keywords" content="параллельный,импорт,конец,россия,повысить,утилизационный,сбор,ввоз,машин,быть,Новости,Новосибирск">
+<meta name="Description" content="С 1 августа в России начинает действовать новая таблица утилизационных сборов, которые с 2012 года платят
+при ввозе автомобиля - Авто - 1 августа 2023 - Новости Новосибирска - НГС"><meta itemprop="datePublished" content="2023-08-01T10:00:56+07:00">
+<link rel="canonical" href="https://ngs.ru/text/auto/2023/08/01/72549098/">
+<meta name="item-image" content="https://cdn.iportal.ru/preview/news/articles/9b52e47c66acde782d7750fd1d37f77019f3909a3_1266_844_c.jpg" />
+<meta name="taboola-section" content="yes" /><meta name="news_keywords" content="Автозакон,Авторынок,Цены на авто,Утилизационный сбор,
+Параллельный импорт,авто" />
+<meta property="yandex_recommendations_image"
+content="https://cdn.iportal.ru/preview/news/articles/9b52e47c66acde782d7750fd1d37f77004f9a277_640_480_c.jpg" />
+<meta property="yandex_recommendations_title" content="Параллельному импорту конец (почти).
+В России повысили утилизационный сбор на ввоз машин — что теперь будет" />
+<meta name="relap-image" content="https://cdn.iportal.ru/preview/news/articles/9b52e47c66acde782d7750fd1d37f77004f9a277_640_480_c.jpg" />
+<meta name="relap-title" content="Параллельному импорту конец (почти).
+В России повысили утилизационный сбор на ввоз машин — что теперь будет" /><meta property="jtnews:page-type" content="record" />
+<meta property="jtnews:rubric-id" content="24" /><meta property="jtnews:theme-id" content="18265" />
+<meta property="jtnews:record-id" content="72549098" /><meta property="jtnews:format-id" content="281" />
+<meta property="og:description" content="А также создают большие риски для покупателей — их могут обязать доплатить разницу"/>
+<meta name="twitter:description" content="А также создают большие риски для покупателей — их могут обязать доплатить разницу">
+<meta property="og:url" content="https://ngs.ru/text/auto/2023/08/01/72549098/">
