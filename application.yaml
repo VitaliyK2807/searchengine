@@ -20,7 +20,7 @@ logging:
 
 indexing-settings:
   sites:
-    - url: http://www.radiomv.ru
+    - url: https://www.radiomv.ru
       name: Radiomv.ru
 #    - url: https://www.dimonvideo.ru
 #      name: Dimonvideo.ru

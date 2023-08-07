@@ -6,10 +6,16 @@ import org.springframework.stereotype.Service;
 import searchengine.config.Site;
 import searchengine.config.SitesList;
 import searchengine.dto.indexPageResponse.IndexPageResponse;
+import searchengine.dto.siteParsing.ParsingSite;
+import searchengine.model.Sites;
+import searchengine.model.Status;
 import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 @Service
 @Slf4j
@@ -32,11 +38,15 @@ public class IndexPageServiceImpl implements IndexPageService {
                     "Отсутствует список сайтов!");
         }
 
-        String namePage = getDomainPage(url);
+        String namePage = getDomainPage(url.toLowerCase());
 
         if (!namePage.isEmpty()) {
-            log.info(namePage);
-            return new IndexPageResponse(true);
+            for (Site site : resultResponse) {
+                if (site.getUrl().equals(namePage)) {
+                    startPageUpdate(site);
+                    return new IndexPageResponse(true);
+                }
+            }
         }
 
         log.error("This page is outside the sites specified in the configuration file!");
@@ -44,12 +54,50 @@ public class IndexPageServiceImpl implements IndexPageService {
                 "Данная страница находится за пределами сайтов, указанных в конфигурационном файле!");
     }
 
+    private void startPageUpdate (Site site) {
+        Optional<Sites> webSite = Optional.ofNullable(sitesRepository.findByUrl(site.getUrl()));
+        if (webSite.isEmpty()) {
+            Sites newWebSite = newWebSite(site);
+            sitesRepository.save(newWebSite);
+            log.info("Added a website " + newWebSite.getName() + " entry to the database");
+        } else {
+            sitesRepository.updateTime(LocalDateTime.now(), webSite.get().getId());
+            log.info("Updated a website " + webSite.get().getName() + " entry to the database");
+        }
+    }
+
+    private Sites newWebSite (Site site) {
+        Sites newWebSite = new Sites();
+        newWebSite.setName(site.getName());
+        newWebSite.setUrl(site.getUrl());
+        newWebSite.setStatus(Status.INDEXING);
+        newWebSite.setStatusTime(LocalDateTime.now());
+
+        return newWebSite;
+    }
+
     private String getDomainPage(String url) {
 
-        if (url.toLowerCase().startsWith("https")) {
-            return url.substring(0, url.indexOf("d"));
+        if (url.startsWith("https") ||
+                url.startsWith("http")) {
+            int start = url.indexOf("/") + 2;
+            int end = url.substring(start).indexOf("/") + start;
+
+            return url.substring(0, end);
         }
-        return ""; //Доработать
+
+        if (url.startsWith("www")) {
+            int end = url.indexOf("/");
+
+            return "https//" + url.substring(0, end);
+        }
+
+        String regex = "[a-z0-9]+";
+        if (url.substring(0, url.indexOf(".")).matches(regex)) {
+            return "https//www." + url.substring(0, url.indexOf("/"));
+        }
+
+        return "";
     }
 
 

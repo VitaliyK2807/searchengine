@@ -50,7 +50,7 @@ public class ApiController {
 
     @PostMapping("/indexPage")
     public ResponseEntity<IndexPageResponse> indexPage(@RequestParam String url) {
-        log.info("Command: @GetMapping(\"/indexPage\")");
+        log.info("Command: @PostMapping(\"/indexPage\")");
 
         if (url.isEmpty()) {
             log.info("Empty!");
