@@ -5,6 +5,8 @@ import searchengine.config.Site;
 import searchengine.config.SitesList;
 import searchengine.model.Sites;
 import searchengine.model.Status;
+import searchengine.repositories.IndexesRepository;
+import searchengine.repositories.LemmasRepository;
 import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
 
@@ -27,15 +29,24 @@ public class Parsing extends Thread{
     public boolean isRun;
     private CopyOnWriteArraySet<String> listUrls;
 
-    private final PagesRepository pagesRepository;
-    private final SitesRepository sitesRepository;
+    private PagesRepository pagesRepository;
+    private SitesRepository sitesRepository;
+    private LemmasRepository lemmasRepository;
+    private IndexesRepository indexesRepository;
 
 
-    public Parsing(Sites webSite, SitesRepository sitesRepository, PagesRepository pagesRepository) {
+
+    public Parsing(Sites webSite,
+                   SitesRepository sitesRepository,
+                   PagesRepository pagesRepository,
+                   LemmasRepository lemmasRepository,
+                   IndexesRepository indexesRepository) {
         this.webSite = webSite;
         listUrls = new CopyOnWriteArraySet<>();
         this.sitesRepository = sitesRepository;
         this.pagesRepository = pagesRepository;
+        this.lemmasRepository = lemmasRepository;
+        this.indexesRepository = indexesRepository;
         isRun = false;
     }
 
@@ -48,12 +59,17 @@ public class Parsing extends Thread{
 
         log.info("WebSite " + webSite.getName() + " parsing start.");
 
+        if (!webSite.getUrl().endsWith("/")) {
+            webSite.setUrl(webSite.getUrl() + "/");
+        }
         parsingSite = new ParsingSite(webSite.getUrl(),
                                                     webSite.getName(),
                                                     listUrls,
                                                     webSite,
                                                     sitesRepository,
-                                                    pagesRepository);
+                                                    pagesRepository,
+                                                    lemmasRepository,
+                                                    indexesRepository);
         try {
             forkJoinPool = new ForkJoinPool();
 
@@ -75,7 +91,7 @@ public class Parsing extends Thread{
             } else {
                 printMassageInfo(", completed in: ", startParsing);
 
-                sitesRepository.updateStatusById(Status.INDEXED, webSite.getId());
+                sitesRepository.updateStatusById(Status.INDEXED, LocalDateTime.now(), webSite.getId());
             }
 
         isRun = false;

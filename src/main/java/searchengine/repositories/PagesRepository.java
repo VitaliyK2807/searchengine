@@ -8,10 +8,12 @@ import org.springframework.transaction.annotation.Transactional;
 import searchengine.model.Pages;
 import searchengine.model.Sites;
 
+import java.util.Optional;
+
 @Repository
 public interface PagesRepository extends JpaRepository<Pages, Integer> {
-    @Modifying
-    @Query("delete from Pages p where p.site = ?1")
-    void deleteWebsitePages(Sites site);
+    @Query("select p from Pages p where p.path = ?1")
+    Optional<Pages> getPageByPath(String path);
+
 
 }

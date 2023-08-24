@@ -8,6 +8,8 @@ import searchengine.dto.indexingSites.IndexingStopResponse;
 import searchengine.dto.siteParsing.Parsing;
 import searchengine.model.Sites;
 import searchengine.model.Status;
+import searchengine.repositories.IndexesRepository;
+import searchengine.repositories.LemmasRepository;
 import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
 import java.time.LocalDateTime;
@@ -22,7 +24,7 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
     private boolean isSiteIndexing = true;
     private Parsing[] parsings;
     private static final int COUNT_PROCESSORS = 3;
-    //Runtime.getRuntime().availableProcessors();
+            //Runtime.getRuntime().availableProcessors();
     private List<Sites> listWebSites;
     private Thread watchingThread;
     private Runnable parsingWebSites;
@@ -30,6 +32,10 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
     SitesRepository sitesRepository;
     @Autowired
     PagesRepository pagesRepository;
+    @Autowired
+    LemmasRepository lemmasRepository;
+    @Autowired
+    IndexesRepository indexesRepository;
     @Autowired
     SitesList sitesList;
 
@@ -48,6 +54,8 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
 
             pagesRepository.deleteAll();
             sitesRepository.deleteAll();
+            indexesRepository.deleteAll();
+            lemmasRepository.deleteAll();
 
             threadLoading();
 
@@ -91,33 +99,25 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
 
                 listWebSites = getSites();
 
-
                 while (countOperations != listWebSites.size() || countThread != 0) {
-
                     if (watchingThread.isInterrupted()) {
-
                         stopped(countOperations);
                         break;
                     }
 
                     if (countThread < COUNT_PROCESSORS && countOperations < listWebSites.size()) {
-
                         startedThread(countOperations, listWebSites.get(countOperations));
-
                         countThread++;
                         countOperations++;
-
                     }
 
                     if (countThread == COUNT_PROCESSORS) {
-
                         countThread = countWorkerThreads(countThread);
                     }
 
                     if (countOperations == listWebSites.size()) {
                         countThread = countWorkerThreads(countThread);
                     }
-
                 }
 
                 log.info("Website indexing completed!");
@@ -126,10 +126,12 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
         };
     }
     private void startedThread (int numberOperations, Sites webSite) {
-
-        parsings[numberOperations] = new Parsing(webSite, sitesRepository, pagesRepository);
+        parsings[numberOperations] = new Parsing(webSite,
+                sitesRepository,
+                pagesRepository,
+                lemmasRepository,
+                indexesRepository);
         parsings[numberOperations].start();
-
     }
 
     private void stopped (int countOperations) {
@@ -141,7 +143,6 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
     }
 
     private List<Sites> getSites() {
-
         return sitesList.getSites()
                 .stream()
                 .map(site -> {
@@ -152,9 +153,7 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
                     newSite.setUrl(site.getUrl());
                     newSite.setName(site.getName());
 
-                    sitesRepository.save(newSite);
-
-                    return newSite;
+                    return sitesRepository.save(newSite);
                 })
                 .collect(Collectors.toList());
     }

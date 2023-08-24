@@ -22,6 +22,9 @@ public class Sites {
     @OneToMany(mappedBy = "site", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Pages> pages = new ArrayList<>();
 
+    @OneToMany(mappedBy = "siteId", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Lemmas> lemmas = new ArrayList<>();
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;

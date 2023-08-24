@@ -16,8 +16,8 @@ import java.util.List;
 public interface SitesRepository extends JpaRepository<Sites, Integer> {
     @Transactional
     @Modifying
-    @Query("update Sites s set s.status = ?1 where s.id = ?2")
-    int updateStatusById(Status status, int id);
+    @Query("update Sites s set s.status = ?1, s.statusTime = ?2 where s.id = ?3")
+    int updateStatusById(Status status, LocalDateTime statusTime, int id);
     @Transactional
     @Modifying
     @Query("update Sites s set s.status = ?1, s.lastError = ?2, s.statusTime = ?3 where s.id = ?4")

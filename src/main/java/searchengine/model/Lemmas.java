@@ -5,26 +5,26 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "lemma")
+@Table(name = "`lemma`")
 public class Lemmas {
 
     @Id
-    @Column(nullable = false)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private int id;
 
-    @Column(nullable = false)
-    private String site;
-
-    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "sites_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "site_id", nullable = false, referencedColumnName = "id")
     private Sites siteId;
 
-    @Column(nullable = false, columnDefinition="VARCHAR(255)")
+    @Column(name = "`lemma`", nullable = false, columnDefinition="VARCHAR(255)")
     private String lemma;
 
     @Column(nullable = false)

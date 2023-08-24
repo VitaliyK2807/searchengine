@@ -8,7 +8,7 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Entity
-@Table(name = "`indexes`")
+@Table(name = "`index`")
 public class Indexes {
 
     @Id
@@ -16,14 +16,12 @@ public class Indexes {
     @Column(name = "id", nullable = false)
     private int id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "page_id", nullable = false)
-    private Pages pages;
+    @Column(name = "page_id", nullable = false)
+    private int page_id;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "lemma_id", nullable = false)
-    private Lemmas lemmaId;
+    @Column(name = "lemma_id", nullable = false)
+    private int lemma_id;
 
     @Column(name = "`rank`", nullable = false)
-    private Float rank;
+    private float rank;
 }
