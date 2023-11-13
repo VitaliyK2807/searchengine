@@ -14,9 +14,9 @@ import java.util.List;
 public interface IndexesRepository extends JpaRepository<Indexes, Integer> {
     @Transactional
     @Modifying
-    @Query("delete from Indexes i where i.page_id = ?1")
+    @Query("delete from Indexes i where i.page = ?1")
     void DeleteIndexesByPage(int page_id);
-    @Query("select i from Indexes i where i.page_id = ?1")
+    @Query("select i from Indexes i where i.page = ?1")
     List<Indexes> findIndexesByIdPage(int page_id);
 
 }

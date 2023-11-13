@@ -3,19 +3,15 @@ package searchengine.dto.siteParsing;
 import lombok.extern.slf4j.Slf4j;
 import searchengine.config.Site;
 import searchengine.config.SitesList;
-import searchengine.model.Sites;
-import searchengine.model.Status;
+import searchengine.model.*;
 import searchengine.repositories.IndexesRepository;
 import searchengine.repositories.LemmasRepository;
 import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.ForkJoinPool;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -28,6 +24,9 @@ public class Parsing extends Thread{
 
     public boolean isRun;
     private CopyOnWriteArraySet<String> listUrls;
+    private ConcurrentHashMap<Pages, AssemblyLemma> assemblyLemmas;
+
+    private Map<String, Integer> mapFrequencyLemma;
 
     private PagesRepository pagesRepository;
     private SitesRepository sitesRepository;
@@ -41,8 +40,9 @@ public class Parsing extends Thread{
                    PagesRepository pagesRepository,
                    LemmasRepository lemmasRepository,
                    IndexesRepository indexesRepository) {
-        this.webSite = webSite;
         listUrls = new CopyOnWriteArraySet<>();
+        assemblyLemmas = new ConcurrentHashMap<>();
+        this.webSite = webSite;
         this.sitesRepository = sitesRepository;
         this.pagesRepository = pagesRepository;
         this.lemmasRepository = lemmasRepository;
@@ -75,23 +75,30 @@ public class Parsing extends Thread{
 
             forkJoinPool.invoke(parsingSite);
 
+            //savingTablesLemmaAndIndex();
+
             if (parsingSite.fatalError) {
+                //savingTablesLemmaAndIndex();
                 printMassageInfo(", stopped after critical error: ", startParsing);
                 sitesRepository.updateFailed(Status.FAILED,
                         "Остановлено после критической ошибки!",
                         LocalDateTime.now(),
                         webSite.getId());
-            } else if (stopFJPUser) {
 
+            } else if (stopFJPUser) {
+                //savingTablesLemmaAndIndex();
                 printMassageInfo(", was stopped by the user after: ", startParsing);
                 sitesRepository.updateFailed(Status.FAILED,
                         "Остановлено пользователем!",
                         LocalDateTime.now(),
                         webSite.getId());
+
             } else {
+               // savingTablesLemmaAndIndex();
                 printMassageInfo(", completed in: ", startParsing);
 
                 sitesRepository.updateStatusById(Status.INDEXED, LocalDateTime.now(), webSite.getId());
+
             }
 
         isRun = false;
@@ -117,6 +124,71 @@ public class Parsing extends Thread{
 
         stopFJPUser = true;
 
+    }
+
+
+    private void savingTablesLemmaAndIndex() {
+        List<Pages> locals = new ArrayList<>(1_000);
+        boolean finished = false;
+
+        System.out.println(pagesRepository.findById(1).get().getSite().getName());
+//        while (!finished) {
+//            for (int i = 0; ; i++) {
+//                Entity ent = readEntityFrom(xml);
+//                // readEntity function must return null when no more remain to read
+//                if (ent == null) {
+//                    finished = true;
+//                    break;
+//                }
+//            }
+//        }
+//        List<Pages> pages = pagesRepository.findBySite(webSite);
+//        System.out.println(pages.size());
+//        mapFrequencyLemma = new TreeMap<>();
+//        assemblyLemmas.entrySet()
+//                .stream()
+//                .forEach(l -> addMapFrequencyLemma(l.getValue().getLemma()));
+//
+//        mapFrequencyLemma.entrySet()
+//                .stream()
+//                .forEach(l -> {
+//                    Lemmas lemma = saveLemmas(l.getKey(), l.getValue());
+//                    saveIndexes(lemma);
+//                });
+    }
+
+    private void addMapFrequencyLemma(String lemma) {
+        if (mapFrequencyLemma.containsKey(lemma)) {
+            mapFrequencyLemma.put(lemma, mapFrequencyLemma.get(lemma) + 1);
+        } else {
+            mapFrequencyLemma.put(lemma, 1);
+        }
+
+    }
+
+    private Lemmas saveLemmas(String word, int frequency) {
+        Lemmas newLemma = new Lemmas();
+
+        newLemma.setLemma(word);
+        newLemma.setFrequency(frequency);
+        newLemma.setSite(webSite);
+
+        return lemmasRepository.save(newLemma);
+
+    }
+
+    private void saveIndexes (Lemmas lemma) {
+        assemblyLemmas.entrySet()
+                .stream()
+                .forEach(l -> {
+                    if (l.getValue().getLemma().equals(lemma.getLemma())) {
+                        Indexes index = new Indexes();
+                        index.setLemma(lemma);
+                        index.setRank(l.getValue().getRank());
+                        index.setPage(l.getKey());
+                        indexesRepository.save(index);
+                    }
+                });
     }
 
     private void printMassageInfo (String message, long startParsing) {

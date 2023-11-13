@@ -1,18 +1,24 @@
 package searchengine.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
+@EqualsAndHashCode
+@Builder
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor
 @Entity
-@Table(name = "`lemma`")
+@Table(name = "lemma", uniqueConstraints = @UniqueConstraint(columnNames = {"site_id", "lemma"}))
+
 public class Lemmas {
 
     @Id
@@ -20,13 +26,17 @@ public class Lemmas {
     @Column(name = "id", nullable = false)
     private int id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "site_id", nullable = false, referencedColumnName = "id")
-    private Sites siteId;
+    @ManyToOne
+    @JoinColumn(name = "site_id", nullable = false)
+    private Sites site;
 
-    @Column(name = "`lemma`", nullable = false, columnDefinition="VARCHAR(255)")
+    @Column(nullable = false, columnDefinition = "VARCHAR(255)")
     private String lemma;
+
+    @OneToMany(mappedBy = "lemma", fetch = FetchType.LAZY)
+    private List<Indexes> indexes = new ArrayList<>();
 
     @Column(nullable = false)
     private int frequency;
+
 }

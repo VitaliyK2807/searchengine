@@ -9,25 +9,29 @@ import org.springframework.transaction.annotation.Transactional;
 import searchengine.model.Lemmas;
 import searchengine.model.Sites;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface LemmasRepository extends JpaRepository<Lemmas, Integer> {
+
+    @Query("select l from Lemmas l where l.lemma = ?1")
+    List<Lemmas> findByLemma(String lemma);
     @Transactional
     @Modifying
     @Query("delete from Lemmas l where l.id = ?1")
-    void deleteLemmaById(int id);
+    void deleteLemmaById(Lemmas lemma);
 
-    @Query("select l from Lemmas l where l.lemma = ?1 and l.siteId.id = ?2")
+    @Query("select l from Lemmas l where l.lemma = ?1 and l.site.id = ?2")
     Optional<Lemmas> findByLemmaAndIdSite(String lemma, int id);
     @Transactional
     @Modifying
     @Query("update Lemmas l set l.frequency = ?1 where l.id = ?2")
-    void updateLemma(int frequency, int id);
+    void updateLemma(int frequency, Lemmas lemma);
 
+    @Query("select count(*) from Lemmas l")
+    int getTotalLemmas ();
 
-    @Query("select count(l) from Lemmas l where l.siteId = ?1")
-    int countRecordsById(int siteId);
-
-
+    @Query("select count(*) from Lemmas l where l.site.id = ?1")
+    int getTotalLemmasSites (int id);
 }

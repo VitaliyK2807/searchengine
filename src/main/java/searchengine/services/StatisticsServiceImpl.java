@@ -7,6 +7,7 @@ import searchengine.dto.statistics.DetailedStatisticsItem;
 import searchengine.dto.statistics.StatisticsData;
 import searchengine.dto.statistics.StatisticsResponse;
 import searchengine.dto.statistics.TotalStatistics;
+import searchengine.model.Pages;
 import searchengine.model.Sites;
 import searchengine.repositories.LemmasRepository;
 import searchengine.repositories.PagesRepository;
@@ -21,9 +22,6 @@ import java.util.Random;
 @Slf4j
 public class StatisticsServiceImpl implements StatisticsService {
 
-//    private final Random random = new Random();
-//    private final SitesList sites;
-
     @Autowired
     private SitesRepository sitesRepository;
 
@@ -35,36 +33,27 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Override
     public StatisticsResponse getStatistics() {
-
-        TotalStatistics total = new TotalStatistics();
-        total.setSites(sitesRepository.findAll().size());
-        total.setIndexing(true);
-        total.setPages(pagesRepository.findAll().size());
-        //total.getPages() + pages);
-        total.setLemmas(lemmasRepository.findAll().size());
-        //total.getLemmas() + lemmas);
-
-        List<DetailedStatisticsItem> detailed = new ArrayList<>();
         List<Sites> sitesList = sitesRepository.findAll();
 
-                //sites.getSites();
+        TotalStatistics total = new TotalStatistics();
+        total.setSites(sitesList.size());
+        total.setIndexing(true);
+        total.setPages(pagesRepository.getTotalPages());
+        total.setLemmas(lemmasRepository.getTotalLemmas());
+
+        List<DetailedStatisticsItem> detailed = new ArrayList<>();
+
         for(int i = 0; i < sitesList.size(); i++) {
             Sites site = sitesList.get(i);
 
             DetailedStatisticsItem item = new DetailedStatisticsItem();
             item.setName(site.getName());
             item.setUrl(site.getUrl());
-            //int pages = random.nextInt(1_000);
-            //int lemmas = pages * random.nextInt(1_000);
-            item.setPages(sitesRepository.getReferenceById(site.getId()).getPages().size());
-            item.setLemmas(lemmasRepository.countRecordsById(site.getId()));
+            item.setPages(pagesRepository.getTotalPagesSite(site));
+            item.setLemmas(lemmasRepository.getTotalLemmasSites(site.getId()));
             item.setStatus(sitesRepository.getReferenceById(site.getId()).getStatus().toString());
-                    //statuses[i % 3]);
             item.setError(sitesRepository.getReferenceById(site.getId()).getLastError());
-                    //errors[i % 3]);
             item.setStatusTime(sitesRepository.getReferenceById(site.getId()).getStatusTime());
-//                    System.currentTimeMillis() -
-//                    (random.nextInt(10_000)));
             detailed.add(item);
         }
         StatisticsResponse response = new StatisticsResponse();
@@ -75,4 +64,7 @@ public class StatisticsServiceImpl implements StatisticsService {
         response.setResult(true);
         return response;
     }
+
+
+
 }

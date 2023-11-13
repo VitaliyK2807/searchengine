@@ -20,16 +20,16 @@ logging:
 
 indexing-settings:
   sites:
-    - url: https://www.radiomv.ru
-      name: Radiomv.ru
+#    - url: https://www.radiomv.ru
+#      name: Radiomv.ru
 #    - url: https://www.dimonvideo.ru
 #      name: Dimonvideo.ru
 #    - url: https://www.lenta.ru
 #      name: lenta.ru
     - url: https://www.skillbox.ru
       name: Skillbox.ru
-    - url: https://www.playback.ru
-      name: PlayBack.Ru
-    - url: https://www.ipfran.ru
-      name: Ipfran.ru
+#    - url: https://www.playback.ru
+#      name: PlayBack.Ru
+#    - url: https://www.ipfran.ru
+#      name: Ipfran.ru
 

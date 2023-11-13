@@ -62,10 +62,11 @@ public class IndexPageServiceImpl implements IndexPageService {
 
     private IndexPageResponse startReadPage (Site site, String url){
         Sites webSite = getModelWebSite(site);
-
+        LemmaFinder finder;
         Pages page;
+
         try {
-            LemmaFinder finder = new LemmaFinder(new RussianLuceneMorphology());
+            finder = new LemmaFinder(new RussianLuceneMorphology());
             page = getPage(url, webSite);
 
             sitesRepository.updateStatusById(Status.INDEXED, LocalDateTime.now(), webSite.getId());
@@ -99,8 +100,8 @@ public class IndexPageServiceImpl implements IndexPageService {
     }
     private void saveIndex (Lemmas lemma, Pages page, float rank) {
         Indexes index = new Indexes();
-        index.setPage_id(page.getId());
-        index.setLemma_id(lemma.getId());
+        index.setPage(page);
+        index.setLemma(lemma);
         index.setRank(rank);
         indexesRepository.save(index);
     }
@@ -113,12 +114,12 @@ public class IndexPageServiceImpl implements IndexPageService {
             Lemmas newLemma = new Lemmas();
             newLemma.setLemma(word);
             newLemma.setFrequency(1);
-            newLemma.setSiteId(site);
+            newLemma.setSite(site);
 
             return lemmasRepository.save(newLemma);
         }
 
-        lemmasRepository.updateLemma(lemma.get().getFrequency() + 1, lemma.get().getId());
+        lemmasRepository.updateLemma(lemma.get().getFrequency() + 1, lemma.get());
 
         return lemma.get();
     }
@@ -154,9 +155,9 @@ public class IndexPageServiceImpl implements IndexPageService {
         lemma.setFrequency(lemma.getFrequency() - 1);
 
         if (lemma.getFrequency() == 0) {
-            lemmasRepository.deleteLemmaById(index.getLemma_id());
+            lemmasRepository.deleteLemmaById(index.getLemma());
         } else {
-            lemmasRepository.updateLemma(lemma.getFrequency(), lemma.getId());
+            lemmasRepository.updateLemma(lemma.getFrequency(), lemma);
         }
     }
     private Sites getModelWebSite(Site site) {

@@ -11,6 +11,7 @@ import searchengine.model.Status;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SitesRepository extends JpaRepository<Sites, Integer> {
@@ -28,4 +29,6 @@ public interface SitesRepository extends JpaRepository<Sites, Integer> {
     void updateTime(LocalDateTime statusTime, int id);
     Sites findByUrl(String url);
 
+    @Override
+    Optional<Sites> findById(Integer integer);
 }

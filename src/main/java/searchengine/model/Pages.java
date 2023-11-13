@@ -1,16 +1,18 @@
 package searchengine.model;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @Entity
-@Table(name = "page", indexes = {@Index(name = "path_index", columnList = "path")})
+@NoArgsConstructor
+@Table(name = "page", indexes = @javax.persistence.Index(columnList = "path"),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"site_id", "path"}))
 public class Pages {
 
     @Id
@@ -18,11 +20,11 @@ public class Pages {
     @Column(name = "id", nullable = false)
     private int id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sites_id", nullable = false, referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "site_id", nullable = false)
     private Sites site;
 
-    @Column(name = "path")
+    @Column(name = "path", columnDefinition = "VARCHAR(511)", length = 511)
     private String path;
 
     @Column(name = "code", nullable = false)
@@ -30,5 +32,8 @@ public class Pages {
 
     @Column(columnDefinition = "MEDIUMTEXT", nullable = false)
     private String content;
+
+    @OneToMany(mappedBy = "page", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Indexes> indexes = new ArrayList<>();
 
 }

@@ -1,10 +1,13 @@
 package searchengine.dto.siteParsing;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import searchengine.dto.lemmas.LemmaFinder;
+import searchengine.model.Lemmas;
 import searchengine.model.Pages;
 import searchengine.model.Sites;
 import searchengine.model.Status;
@@ -12,11 +15,16 @@ import searchengine.repositories.IndexesRepository;
 import searchengine.repositories.LemmasRepository;
 import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
+
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.RecursiveAction;
 import java.util.regex.Matcher;
@@ -25,6 +33,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class ParsingSite extends RecursiveAction {
     private CopyOnWriteArraySet<String> listUrls;
+    private ConcurrentHashMap<Pages, AssemblyLemma> assemblyLemmas;
     private String url;
     private String domain;
     private Sites site;
@@ -33,7 +42,7 @@ public class ParsingSite extends RecursiveAction {
     private LemmasRepository lemmasRepository;
     private IndexesRepository indexesRepository;
     public boolean fatalError;
-    static boolean stop;
+    static volatile boolean stop;
 
     public ParsingSite(String url,
                        String domain,
@@ -78,8 +87,8 @@ public class ParsingSite extends RecursiveAction {
                     listTasks.add(parsingSite);
                 });
 
-            }
-            listTasks.forEach(ParsingSite::join);
+        }
+        listTasks.forEach(ParsingSite::join);
 
     }
 
@@ -111,21 +120,21 @@ public class ParsingSite extends RecursiveAction {
                         .get();
                 int code = document.connection().response().statusCode();
                 String documentText = document.outerHtml();
+
                 page.setContent(documentText);
                 page.setCode(code);
 
                 page.setId(pagesRepository.save(page).getId());
                 sitesRepository.updateTime(LocalDateTime.now(), site.getId());
 
-                if (code < 399 || code > 599) {
+                if (code < 400) {
                     WritingLemmas writingLemmas =
-                            new WritingLemmas(documentText,
-                            page,
-                            lemmasRepository,
-                            indexesRepository);
+                            new WritingLemmas(lemmasRepository,
+                                    indexesRepository,
+                                    page,
+                                    documentText);
+
                     writingLemmas.writeLemmaAndIndex();
-
-
                 }
 
                 return document.select("a");
@@ -154,7 +163,7 @@ public class ParsingSite extends RecursiveAction {
                 page.setCode(0);
                 page.setContent(ex.getMessage());
                 pagesRepository.save(page);
-                sitesRepository.updateFailed(Status.FAILED, ex.getMessage(), LocalDateTime.now(), site.getId());
+                sitesRepository.updateFailed(Status.INDEXING, ex.getMessage(), LocalDateTime.now(), site.getId());
                 fatalError = true;
 
                 return new Elements();
@@ -162,6 +171,24 @@ public class ParsingSite extends RecursiveAction {
         }
         return new Elements();
     }
+
+    private void writingLemmas(String text, Pages page) {
+        try {
+            LemmaFinder finder = new LemmaFinder(new RussianLuceneMorphology());
+
+            finder.getCollectionLemmas(text)
+                    .entrySet()
+                    .forEach(word -> {
+                        AssemblyLemma assemblyLemma = new AssemblyLemma(word.getKey(), word.getValue());
+                        assemblyLemmas.put(page, assemblyLemma);
+
+                    });
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private String getUrls(String str) {
         if (str.startsWith("/")) {
@@ -237,7 +264,4 @@ public class ParsingSite extends RecursiveAction {
         return url.substring(0, url.indexOf("/") + 2) + "www." + domain.toLowerCase();
     }
 
-    public Sites getSite() {
-        return site;
-    }
 }

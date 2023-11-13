@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 public class LemmaFinder {
     private final LuceneMorphology luceneMorphology;
 
-    private static final String[] particlesNames = new String[]{"МЕЖД", "ПРЕДЛ", "СОЮЗ", "МС"};
+    private static final String[] particlesNames = new String[]{"МЕЖД", "ПРЕДЛ", "СОЮЗ", "МС", "ЧАСТ", "МС-П", "ВВОДН"};
 
     public LemmaFinder(LuceneMorphology luceneMorphology) {
         this.luceneMorphology = luceneMorphology;
@@ -30,6 +30,19 @@ public class LemmaFinder {
                     }
                 }, HashMap::putAll);
 
+    }
+
+    public TreeSet<String> getSetLemmas (String text) {
+        return textCleaning(text)
+                .stream()
+                .filter(word -> !anyWordBaseBelongToParticle(luceneMorphology.getMorphInfo(word)))
+                .filter(word -> !luceneMorphology.getNormalForms(word).isEmpty())
+                .collect(TreeSet::new, (set, word) -> {
+                    String normalWord = luceneMorphology.getNormalForms(word).get(0);
+                    if (!set.contains(normalWord)) {
+                        set.add(normalWord);
+                    }
+                }, TreeSet::addAll);
     }
 
     private boolean anyWordBaseBelongToParticle(List<String> wordBaseForms) {

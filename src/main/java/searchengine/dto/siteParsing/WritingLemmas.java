@@ -1,7 +1,7 @@
 package searchengine.dto.siteParsing;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
-import org.springframework.beans.factory.annotation.Autowired;
 import java.lang.String;
 import searchengine.dto.lemmas.LemmaFinder;
 import searchengine.model.Indexes;
@@ -10,77 +10,79 @@ import searchengine.model.Pages;
 import searchengine.model.Sites;
 import searchengine.repositories.IndexesRepository;
 import searchengine.repositories.LemmasRepository;
-
 import java.io.IOException;
-import java.util.Optional;
+import java.util.*;
 
+@Slf4j
 public class WritingLemmas {
 
     private String text;
     private Pages page;
+    private List<Lemmas> lemmasList = new ArrayList<>();
+    private List<Indexes> indexesList = new ArrayList<>();
 
     private LemmasRepository lemmasRepository;
+
     private IndexesRepository indexesRepository;
 
-    @Autowired
-    public WritingLemmas(String text,
+
+    public WritingLemmas(LemmasRepository lemmasRepository,
+                         IndexesRepository indexesRepository,
                          Pages page,
-                         LemmasRepository lemmasRepository,
-                         IndexesRepository indexesRepository) {
-        this.text = text;
-        this.page = page;
+                         String text) {
         this.lemmasRepository = lemmasRepository;
         this.indexesRepository = indexesRepository;
+        this.page = page;
+        this.text = text;
     }
 
-    public synchronized void writeLemmaAndIndex() {
-        try {
-            LemmaFinder finder = new LemmaFinder(new RussianLuceneMorphology());
 
+    public void writeLemmaAndIndex() throws RuntimeException, IOException {
+        LemmaFinder finder = new LemmaFinder(new RussianLuceneMorphology());
+        List<Lemmas> lemmas = new ArrayList<>();
+        synchronized (lemmasRepository) {
             finder.getCollectionLemmas(text)
                     .entrySet()
                     .forEach(word -> {
-                        Lemmas lemma = saveLemmas(word.getKey(), page.getSite());
-                        saveIndex(lemma, page, word.getValue());
-
+                        Lemmas lemma = getLemma(word.getKey(), word.getValue(), page.getSite());
+                        indexesList.add(getIndex(word.getValue(), lemma));
+                        lemmasList.add(lemma);
                     });
-        } catch (IOException e) {
-
-            throw new RuntimeException(e);
+            lemmas.addAll(lemmasRepository.saveAll(lemmasList));
         }
-
+        lemmasList = new ArrayList<>();
+        lemmas.stream().forEach(lemma -> indexesList.forEach(index -> {
+            if (index.getLemma().getLemma().equals(lemma.getLemma())) {
+                index.getLemma().setId(lemma.getId());
+            }
+        }));
+        indexesRepository.saveAll(indexesList);
     }
 
-    private void saveIndex (Lemmas lemma, Pages page, float rank) {
-        Indexes index = new Indexes();
-        index.setPage_id(page.getId());
-        index.setLemma_id(lemma.getId());
-        index.setRank(rank);
-        indexesRepository.save(index);
-    }
+    private Lemmas getLemma(String word, Integer frequency, Sites site) {
+        Optional<Lemmas> lemma = lemmasRepository.findByLemmaAndIdSite(word, site.getId());
 
-    private Lemmas saveLemmas(String word, Sites site) {
-        Optional<Lemmas> lemma = null;
-        try {
-            lemma = lemmasRepository.findByLemmaAndIdSite(word, site.getId());
-        } catch (Exception ex) {
-            System.out.println(ex.getMessage());//nested exception is javax.persistence.NonUniqueResultException: query did not return a unique result:
+        if (!lemma.isPresent()) {
+
+            Lemmas newLemma = Lemmas.builder()
+                            .lemma(word)
+                                    .frequency(frequency)
+                                            .site(site)
+                                                    .build();
+            return newLemma;
         }
-
-
-        if (lemma.isEmpty()) {
-            Lemmas newLemma = new Lemmas();
-            newLemma.setLemma(word);
-            newLemma.setFrequency(1);
-            newLemma.setSiteId(site);
-
-            return lemmasRepository.save(newLemma);
-        }
-
-        lemmasRepository.updateLemma(lemma.get().getFrequency() + 1, lemma.get().getId());
+        lemmasRepository.deleteLemmaById(lemma.get());
+        lemma.get().setFrequency(lemma.get().getFrequency() + 1);
 
         return lemma.get();
     }
 
+    private Indexes getIndex(int rank, Lemmas lemma) {
+        return Indexes.builder()
+                .lemma(lemma)
+                        .rank(rank)
+                                .page(page)
+                                        .build();
+    }
 
 }

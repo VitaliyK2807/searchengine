@@ -50,12 +50,13 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
         if (isSiteIndexing) {
             isSiteIndexing = false;
 
-            parsings = new Parsing[sitesList.getSites().size()];
-
             pagesRepository.deleteAll();
             sitesRepository.deleteAll();
             indexesRepository.deleteAll();
             lemmasRepository.deleteAll();
+
+            parsings = new Parsing[sitesList.getSites().size()];
+
 
             threadLoading();
 
@@ -153,8 +154,7 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
                     newSite.setUrl(site.getUrl());
                     newSite.setName(site.getName());
 
-                    return sitesRepository.save(newSite);
-                })
+                    return sitesRepository.save(newSite);})
                 .collect(Collectors.toList());
     }
 

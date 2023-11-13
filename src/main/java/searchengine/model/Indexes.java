@@ -1,14 +1,19 @@
 package searchengine.model;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import org.springframework.transaction.annotation.Transactional;
+
 import javax.persistence.*;
+
+import java.util.Objects;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
 @NoArgsConstructor
 @Entity
-@Table(name = "`index`")
+@Transactional
+@Table(name = "`index`", uniqueConstraints = @UniqueConstraint(columnNames = {"page_id", "lemma_id"}))
 public class Indexes {
 
     @Id
@@ -16,12 +21,27 @@ public class Indexes {
     @Column(name = "id", nullable = false)
     private int id;
 
-    @Column(name = "page_id", nullable = false)
-    private int page_id;
+    @ManyToOne
+    @JoinColumn(name = "page_id", nullable = false)
+    private Pages page;
 
-    @Column(name = "lemma_id", nullable = false)
-    private int lemma_id;
+    @ManyToOne
+    @JoinColumn(name = "lemma_id", nullable = false, referencedColumnName = "id")
+    private Lemmas lemma;
 
     @Column(name = "`rank`", nullable = false)
     private float rank;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Indexes index = (Indexes) o;
+        return Objects.equals(page, index.page) && Objects.equals(lemma, index.lemma);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(page, lemma);
+    }
 }
