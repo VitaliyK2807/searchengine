@@ -2,15 +2,14 @@ package searchengine.model;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Getter
 @Setter
 @Entity
 @NoArgsConstructor
+@EqualsAndHashCode
 @Table(name = "page", indexes = @javax.persistence.Index(columnList = "path"),
         uniqueConstraints = @UniqueConstraint(columnNames = {"site_id", "path"}))
 public class Pages {
@@ -20,9 +19,9 @@ public class Pages {
     @Column(name = "id", nullable = false)
     private int id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "site_id", nullable = false)
-    private Sites site;
+    private Sites siteId;
 
     @Column(name = "path", columnDefinition = "VARCHAR(511)", length = 511)
     private String path;
@@ -33,7 +32,7 @@ public class Pages {
     @Column(columnDefinition = "MEDIUMTEXT", nullable = false)
     private String content;
 
-    @OneToMany(mappedBy = "page", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Indexes> indexes = new ArrayList<>();
+//    @OneToMany(mappedBy = "page", cascade = CascadeType.ALL)
+//    private Set<Indexes> indexes = new HashSet<>();
 
 }

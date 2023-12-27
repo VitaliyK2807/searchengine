@@ -75,18 +75,18 @@ public class LemmasSaveTest {
 
 
     private Lemmas saveLemmas(String word, Integer countLemmas, Sites site) {
-        Optional<Lemmas> lemma = lemmasRepository.findByLemmaAndIdSite(word, site.getId());
+        Optional<Lemmas> lemma = lemmasRepository.findByLemmaAndSiteId(word, site);
 
         if (lemma.isEmpty()) {
             Lemmas newLemma = new Lemmas();
             newLemma.setLemma(word);
             newLemma.setFrequency(1);
-            newLemma.setSite(site);
+            newLemma.setId(site.getId());
             return lemmasRepository.save(newLemma);
 
         }
 
-        lemmasRepository.updateLemma(lemma.get().getFrequency() + 1, lemma.get());
+        lemmasRepository.updateLemma(lemma.get().getFrequency() + 1, lemma.get().getId());
 
         return lemma.get();
     }

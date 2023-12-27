@@ -9,9 +9,15 @@ import searchengine.model.Indexes;
 import searchengine.model.Pages;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IndexesRepository extends JpaRepository<Indexes, Integer> {
+    @Query("select i from Indexes i where i.page.id = ?1 and i.lemma.id = ?2")
+    Optional<Indexes> findByPage_IdAndLemma_Id(int id, int id1);
+    
+    @Query("select i from Indexes i where i.lemma.id = ?1")
+    List<Indexes> findByLemma_Id(int id);
     @Transactional
     @Modifying
     @Query("delete from Indexes i where i.page = ?1")

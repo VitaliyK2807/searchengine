@@ -14,24 +14,22 @@ import java.util.Optional;
 
 @Repository
 public interface LemmasRepository extends JpaRepository<Lemmas, Integer> {
-
-    @Query("select l from Lemmas l where l.lemma = ?1")
-    List<Lemmas> findByLemma(String lemma);
-    @Transactional
-    @Modifying
-    @Query("delete from Lemmas l where l.id = ?1")
-    void deleteLemmaById(Lemmas lemma);
-
-    @Query("select l from Lemmas l where l.lemma = ?1 and l.site.id = ?2")
-    Optional<Lemmas> findByLemmaAndIdSite(String lemma, int id);
     @Transactional
     @Modifying
     @Query("update Lemmas l set l.frequency = ?1 where l.id = ?2")
-    void updateLemma(int frequency, Lemmas lemma);
+    void updateLemma(int frequency, int id);
+    @Query("select l from Lemmas l where l.lemma = ?1 and l.siteId = ?2")
+    Optional<Lemmas> findByLemmaAndSiteId(String lemma, Sites siteId);
+
+    @Query("select l from Lemmas l where l.lemma = ?1")
+    List<Lemmas> findByLemma(String lemma);
 
     @Query("select count(*) from Lemmas l")
-    int getTotalLemmas ();
+    int getTotalLemmas();
 
-    @Query("select count(*) from Lemmas l where l.site.id = ?1")
-    int getTotalLemmasSites (int id);
+    @Query("select count(*) from Lemmas l where l.siteId = ?1")
+    int getTotalSitesWithLemmas (Sites siteId);
+
+    @Override
+    void deleteById(Integer integer);
 }

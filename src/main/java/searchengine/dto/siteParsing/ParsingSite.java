@@ -1,5 +1,6 @@
 package searchengine.dto.siteParsing;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 import org.jsoup.HttpStatusException;
@@ -23,8 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.RecursiveAction;
 import java.util.regex.Matcher;
@@ -33,7 +32,6 @@ import java.util.regex.Pattern;
 @Slf4j
 public class ParsingSite extends RecursiveAction {
     private CopyOnWriteArraySet<String> listUrls;
-    private ConcurrentHashMap<Pages, AssemblyLemma> assemblyLemmas;
     private String url;
     private String domain;
     private Sites site;
@@ -41,7 +39,7 @@ public class ParsingSite extends RecursiveAction {
     private SitesRepository sitesRepository;
     private LemmasRepository lemmasRepository;
     private IndexesRepository indexesRepository;
-    public boolean fatalError;
+    static volatile boolean fatalError;
     static volatile boolean stop;
 
     public ParsingSite(String url,
@@ -63,10 +61,11 @@ public class ParsingSite extends RecursiveAction {
 
     }
 
+
     @Override
     protected void compute() {
 
-        if (stop) {
+        if (stop || fatalError) {
             return;
         }
 
@@ -95,22 +94,27 @@ public class ParsingSite extends RecursiveAction {
     private TreeSet<String> parsingLinksSite() {
 
         TreeSet<String> childesLinks = new TreeSet<>();
-        connect().forEach(element -> {
-            String receivedURL = getUrls(element.attr("href"));
-            if (testElements(receivedURL)) {
-                childesLinks.add(receivedURL);
-            }
-        });
+        try {
+            connect().forEach(element -> {
+                String receivedURL = getUrls(element.attr("href"));
+                if (testElements(receivedURL)) {
+                    childesLinks.add(receivedURL);
+                }
+            });
+        } catch (IOException e) {
+            //fatalError = true;
+            throw new RuntimeException(e);
+        }
 
         return childesLinks;
     }
 
-    private Elements connect() {
+    private Elements connect() throws IOException {
         String path = getResultPath();
         if (listUrls.add(path)) {
             Pages page = new Pages();
             page.setPath(path);
-            page.setSite(site);
+            page.setSiteId(site);
             try {
                 Document document = Jsoup.connect(url)
                         .timeout(25_000)
@@ -120,75 +124,33 @@ public class ParsingSite extends RecursiveAction {
                         .get();
                 int code = document.connection().response().statusCode();
                 String documentText = document.outerHtml();
-
                 page.setContent(documentText);
                 page.setCode(code);
-
                 page.setId(pagesRepository.save(page).getId());
-                sitesRepository.updateTime(LocalDateTime.now(), site.getId());
-
-                if (code < 400) {
-                    WritingLemmas writingLemmas =
-                            new WritingLemmas(lemmasRepository,
-                                    indexesRepository,
-                                    page,
-                                    documentText);
-
-                    writingLemmas.writeLemmaAndIndex();
-                }
-
+                sitesRepository.updateLastErrorAndStatusTimeById("", LocalDateTime.now(), site.getId());
+                writeLemma(code, page, document.text());
                 return document.select("a");
-
             } catch (HttpStatusException hse) {
                 log.error(hse.getMessage());
-                page.setCode(hse.getStatusCode());
-                page.setContent(hse.getMessage());
-                pagesRepository.save(page);
-                sitesRepository.updateTime(LocalDateTime.now(), site.getId());
-
                 return new Elements();
-
             } catch (SocketTimeoutException ste) {
                 log.error(ste.getMessage() + " - " + url);
-                page.setCode(0);
-                page.setContent(ste.getMessage());
-                pagesRepository.save(page);
-                sitesRepository.updateTime(LocalDateTime.now(), site.getId());
-
-                return new Elements();
-
-           } catch (Exception ex) {
-                log.error("IOException for URL -> " + url + " " + ex.getMessage());
-
-                page.setCode(0);
-                page.setContent(ex.getMessage());
-                pagesRepository.save(page);
-                sitesRepository.updateFailed(Status.INDEXING, ex.getMessage(), LocalDateTime.now(), site.getId());
-                fatalError = true;
-
                 return new Elements();
             }
         }
         return new Elements();
     }
 
-    private void writingLemmas(String text, Pages page) {
-        try {
-            LemmaFinder finder = new LemmaFinder(new RussianLuceneMorphology());
-
-            finder.getCollectionLemmas(text)
-                    .entrySet()
-                    .forEach(word -> {
-                        AssemblyLemma assemblyLemma = new AssemblyLemma(word.getKey(), word.getValue());
-                        assemblyLemmas.put(page, assemblyLemma);
-
-                    });
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+    private void writeLemma(int code, Pages page, String text) throws IOException {
+        if (code < 400) {
+            WritingLemmas writingLemmas =
+                    new WritingLemmas(lemmasRepository,
+                            indexesRepository,
+                            page,
+                            text);
+            writingLemmas.writeLemmaAndIndex();
         }
     }
-
 
     private String getUrls(String str) {
         if (str.startsWith("/")) {

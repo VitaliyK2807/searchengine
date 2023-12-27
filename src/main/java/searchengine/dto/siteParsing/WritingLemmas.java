@@ -3,6 +3,8 @@ package searchengine.dto.siteParsing;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 import java.lang.String;
+
+import org.hibernate.exception.GenericJDBCException;
 import searchengine.dto.lemmas.LemmaFinder;
 import searchengine.model.Indexes;
 import searchengine.model.Lemmas;
@@ -44,13 +46,16 @@ public class WritingLemmas {
             finder.getCollectionLemmas(text)
                     .entrySet()
                     .forEach(word -> {
-                        Lemmas lemma = getLemma(word.getKey(), word.getValue(), page.getSite());
+                        Lemmas lemma = getLemma(word.getKey(), page.getSiteId());
+
+                        if (lemma.getId() == 0) {
+                            lemmasList.add(lemma);
+                        }
                         indexesList.add(getIndex(word.getValue(), lemma));
-                        lemmasList.add(lemma);
                     });
             lemmas.addAll(lemmasRepository.saveAll(lemmasList));
+            lemmasList = new ArrayList<>();
         }
-        lemmasList = new ArrayList<>();
         lemmas.stream().forEach(lemma -> indexesList.forEach(index -> {
             if (index.getLemma().getLemma().equals(lemma.getLemma())) {
                 index.getLemma().setId(lemma.getId());
@@ -59,20 +64,19 @@ public class WritingLemmas {
         indexesRepository.saveAll(indexesList);
     }
 
-    private Lemmas getLemma(String word, Integer frequency, Sites site) {
-        Optional<Lemmas> lemma = lemmasRepository.findByLemmaAndIdSite(word, site.getId());
+    private Lemmas getLemma(String word, Sites site) {
+        Optional<Lemmas> lemma = lemmasRepository.findByLemmaAndSiteId(word, site);
 
         if (!lemma.isPresent()) {
 
             Lemmas newLemma = Lemmas.builder()
-                            .lemma(word)
-                                    .frequency(frequency)
-                                            .site(site)
+                                .lemma(word)
+                                        .frequency(1)
+                                                .siteId(site)
                                                     .build();
             return newLemma;
         }
-        lemmasRepository.deleteLemmaById(lemma.get());
-        lemma.get().setFrequency(lemma.get().getFrequency() + 1);
+        lemmasRepository.updateLemma(lemma.get().getFrequency() + 1, lemma.get().getId());
 
         return lemma.get();
     }

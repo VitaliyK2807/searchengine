@@ -13,8 +13,8 @@ import java.util.Optional;
 
 @Repository
 public interface PagesRepository extends JpaRepository<Pages, Integer> {
-    @Query("select p from Pages p where p.id = ?1 and p.site = ?2")
-    Optional<Pages> findByIdAndSite(int id, Sites site);
+    @Query("select p from Pages p where p.id = ?1 and p.siteId = ?2")
+    Optional<Pages> findByIdAndSite(int id, Sites siteId);
 
     @Query("select p from Pages p where p.path = ?1")
     Optional<Pages> getPageByPath(String path);
@@ -22,8 +22,8 @@ public interface PagesRepository extends JpaRepository<Pages, Integer> {
     @Query("select count(*) from Pages p")
     int getTotalPages ();
 
-    @Query("select count(*) from Pages p where p.site = ?1")
-    int getTotalPagesSite(Sites site);
+    @Query("select count(*) from Pages p where p.siteId = ?1")
+    int getTotalPagesSite(Sites siteId);
 
 
     @Override

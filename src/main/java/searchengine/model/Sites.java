@@ -3,13 +3,11 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@EqualsAndHashCode
 @Entity
 @Table(name = "site")
 public class Sites {
@@ -19,12 +17,6 @@ public class Sites {
     @Column(name = "id", nullable = false)
     private int id;
 
-    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Pages> page = new ArrayList<>();
-
-    @OneToMany(mappedBy = "site", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Lemmas> lemmas = new ArrayList<>();
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, columnDefinition = "ENUM('INDEXING', 'INDEXED', 'FAILED')")
     private Status status;
@@ -32,6 +24,7 @@ public class Sites {
     @Column(nullable = false)
     private LocalDateTime statusTime;
 
+    @Column(columnDefinition = "TEXT")
     private String lastError;
 
     @Column(nullable = false, columnDefinition="VARCHAR(255)")
@@ -40,4 +33,22 @@ public class Sites {
     @Column(nullable = false)
     private String name;
 
+//    @OneToMany(mappedBy = "siteId", cascade = CascadeType.ALL)
+//    private Set<Pages> page = new HashSet<>();
+//
+//    @OneToMany(mappedBy = "siteId", cascade = CascadeType.ALL)
+//    private Set<Lemmas> lemmas = new HashSet<>();
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Sites site = (Sites) o;
+        return Objects.equals(url, site.url);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(url);
+    }
 }

@@ -12,13 +12,17 @@ import java.util.List;
 public class PageSearchResponse {
     private boolean result;
     private String error;
+    private int count;
+    private List<DataSearch> data;
 
     public PageSearchResponse(boolean result, String error) {
         this.result = result;
         this.error = error;
     }
 
-    public PageSearchResponse(boolean result) {
+    public PageSearchResponse(boolean result, int count, List<DataSearch> data) {
         this.result = result;
+        this.count = count;
+        this.data = data;
     }
 }

@@ -28,15 +28,16 @@ public class Lemmas {
 
     @ManyToOne
     @JoinColumn(name = "site_id", nullable = false)
-    private Sites site;
+    private Sites siteId;
 
-    @Column(nullable = false, columnDefinition = "VARCHAR(255)")
+    @Column(name = "`lemma`", nullable = false, columnDefinition = "VARCHAR(255)")
     private String lemma;
 
-    @OneToMany(mappedBy = "lemma", fetch = FetchType.LAZY)
-    private List<Indexes> indexes = new ArrayList<>();
-
-    @Column(nullable = false)
+    @Column(name = "frequency", nullable = false)
     private int frequency;
+
+//    @OneToMany(mappedBy = "lemma", cascade = CascadeType.ALL)
+//    @ToString.Exclude
+//    private Set<Indexes> indexes = new HashSet<>();
 
 }

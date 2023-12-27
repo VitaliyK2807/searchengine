@@ -21,12 +21,12 @@ public class Indexes {
     @Column(name = "id", nullable = false)
     private int id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "page_id", nullable = false)
     private Pages page;
 
-    @ManyToOne
-    @JoinColumn(name = "lemma_id", nullable = false, referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lemma_id", nullable = false)
     private Lemmas lemma;
 
     @Column(name = "`rank`", nullable = false)

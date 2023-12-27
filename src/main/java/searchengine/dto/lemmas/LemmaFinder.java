@@ -2,6 +2,7 @@ package searchengine.dto.lemmas;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.morphology.LuceneMorphology;
+import org.apache.lucene.search.MultiCollectorManager;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -45,6 +46,14 @@ public class LemmaFinder {
                 }, TreeSet::addAll);
     }
 
+    public String getNormalForm(String word) {
+        String cleanWord = word.toLowerCase(Locale.ROOT).replaceAll("([^а-я\\s])", "");
+        if (cleanWord.equals("")) {
+            return "";
+        }
+        return luceneMorphology.getNormalForms(cleanWord).get(0);
+    }
+
     private boolean anyWordBaseBelongToParticle(List<String> wordBaseForms) {
         return wordBaseForms.stream().anyMatch(this::hasParticleProperty);
     }
@@ -66,5 +75,6 @@ public class LemmaFinder {
                 .collect(Collectors.toList());
 
     }
+
 
 }

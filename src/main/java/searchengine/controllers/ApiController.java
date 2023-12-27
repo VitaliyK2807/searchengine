@@ -80,6 +80,6 @@ public class ApiController {
                     new PageSearchResponse(false, "Задан пустой поисковый запрос");
             return ResponseEntity.ok(pageSearchResponse);
         }
-        return ResponseEntity.ok(pageSearchService.pageSearch(query, site, offset, limit));
+        return ResponseEntity.ok(pageSearchService.pagesSearch(query, site, offset, limit));
     }
 }

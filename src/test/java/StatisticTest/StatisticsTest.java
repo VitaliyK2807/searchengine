@@ -52,7 +52,7 @@ public class StatisticsTest {
 
         Pages pagesGoogleSearch = new Pages();
         pagesGoogleSearch.setPath("/search");
-        pagesGoogleSearch.setSite(siteGoogle);
+        pagesGoogleSearch.setSiteId(siteGoogle);
         pagesGoogleSearch.setCode(200);
         pagesGoogleSearch.setContent("<html itemscope=\"\" itemtype=\"http://schema.org/SearchResultsPage\" " +
                 "lang=\"ru\"><head><meta charset=\"UTF-8\"><meta content=\"origin\" name=\"referrer\">" +
@@ -60,7 +60,7 @@ public class StatisticsTest {
 
         Pages pagesGooglePolicies = new Pages();
         pagesGooglePolicies.setPath("/terms");
-        pagesGooglePolicies.setSite(siteGoogle);
+        pagesGooglePolicies.setSiteId(siteGoogle);
         pagesGooglePolicies.setCode(201);
         pagesGooglePolicies.setContent("<!doctype html><html lang=\"ru\" dir=\"ltr\"><head><base href=" +
                 "\"https://policies.google.com/\"><meta name=\"referrer\" content=\"origin\"><meta name=" +

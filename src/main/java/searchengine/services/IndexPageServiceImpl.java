@@ -108,25 +108,25 @@ public class IndexPageServiceImpl implements IndexPageService {
 
     private Lemmas saveLemmas (String word, Sites site) {
 
-        Optional<Lemmas> lemma = lemmasRepository.findByLemmaAndIdSite(word, site.getId());
+        Optional<Lemmas> lemma = lemmasRepository.findByLemmaAndSiteId(word, site);
 
         if (lemma.isEmpty()) {
             Lemmas newLemma = new Lemmas();
             newLemma.setLemma(word);
             newLemma.setFrequency(1);
-            newLemma.setSite(site);
+            newLemma.setSiteId(site);
 
             return lemmasRepository.save(newLemma);
         }
 
-        lemmasRepository.updateLemma(lemma.get().getFrequency() + 1, lemma.get());
+        lemmasRepository.updateLemma(lemma.get().getFrequency() + 1, lemma.get().getId());
 
         return lemma.get();
     }
     private Pages getPage(String url, Sites webSite) throws RuntimeException {
         PageReading pageReading = new PageReading(url, webSite.getName());
         Pages newPage = pageReading.readPage();
-        newPage.setSite(webSite);
+        newPage.setSiteId(webSite);
 
         if (newPage.getPath().isEmpty()) {
             throw new RuntimeException();
@@ -155,9 +155,9 @@ public class IndexPageServiceImpl implements IndexPageService {
         lemma.setFrequency(lemma.getFrequency() - 1);
 
         if (lemma.getFrequency() == 0) {
-            lemmasRepository.deleteLemmaById(index.getLemma());
+            lemmasRepository.deleteById(index.getLemma().getId());
         } else {
-            lemmasRepository.updateLemma(lemma.getFrequency(), lemma);
+            lemmasRepository.updateLemma(lemma.getFrequency(), lemma.getId());
         }
     }
     private Sites getModelWebSite(Site site) {
@@ -170,7 +170,7 @@ public class IndexPageServiceImpl implements IndexPageService {
             return sitesRepository.save(newWebSite);
         }
 
-        sitesRepository.updateTime(LocalDateTime.now(), webSite.get().getId());
+        sitesRepository.updateLastErrorAndStatusTimeById("", LocalDateTime.now(), webSite.get().getId());
         log.info("Updated a website " + webSite.get().getName() + " entry to the database");
 
         return webSite.get();
