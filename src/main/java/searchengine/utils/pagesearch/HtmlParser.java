@@ -1,10 +1,9 @@
-package searchengine.dto.pageSearch;
+package searchengine.utils.pagesearch;
 
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import searchengine.dto.lemmas.LemmaFinder;
-
+import searchengine.utils.lemmas.LemmaFinder;
 import java.io.IOException;
 import java.util.*;
 
@@ -13,10 +12,10 @@ public class HtmlParser {
     private static final Integer COUNTS_SYMBOL = 200;
     private String[] wordsContent;
     private LemmaFinder finder;
-    private String text;
-    private TreeSet<String> setLemmas;
     private Document document;
-    public HtmlParser() {
+
+    public HtmlParser(String content) {
+        document = Jsoup.parse(content);
         try {
             finder = new LemmaFinder(new RussianLuceneMorphology());
         } catch (IOException e) {
@@ -24,15 +23,14 @@ public class HtmlParser {
         }
     }
 
-    public String getTitle(String content) {
-        document = Jsoup.parse(content);
+    public String getTitle() {
         return document.title();
     }
 
     public String getSnippets(String query) {
-        text = document.text();
+        String text = document.text();
         wordsContent = text.split("\\s+");
-        setLemmas = finder.getSetLemmas(query);
+        TreeSet<String>  setLemmas = finder.getSetLemmas(query);
 
         StringJoiner joiner = new StringJoiner(". ");
 
@@ -48,17 +46,18 @@ public class HtmlParser {
        }
         return joiner.toString();
     }
+
     private String getString(Integer index) {
         int from = index - DIFFERENCE;
         int to = index + DIFFERENCE;
 
-        if (testDiff(from) & testAddition(to)) {
+        if (testDiff(from) && testAddition(to)) {
             return redyString(0, wordsContent.length, index);
         }
-        if (testDiff(from) & !testAddition(to)) {
+        if (testDiff(from) && !testAddition(to)) {
             return redyString(0, to, index);
         }
-        if (!testDiff(from) & testAddition(to)) {
+        if (!testDiff(from) && testAddition(to)) {
             return redyString(from, wordsContent.length, index);
         }
 

@@ -1,35 +1,33 @@
 package searchengine.services;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import searchengine.dto.statistics.DetailedStatisticsItem;
 import searchengine.dto.statistics.StatisticsData;
 import searchengine.dto.statistics.StatisticsResponse;
 import searchengine.dto.statistics.TotalStatistics;
-import searchengine.model.Pages;
 import searchengine.model.Sites;
 import searchengine.repositories.LemmasRepository;
 import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
-
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
 @Service
 @Slf4j
 public class StatisticsServiceImpl implements StatisticsService {
 
-    @Autowired
-    private SitesRepository sitesRepository;
+    private final SitesRepository sitesRepository;
 
-    @Autowired
-    private PagesRepository pagesRepository;
+    private final PagesRepository pagesRepository;
 
-    @Autowired
-    private LemmasRepository lemmasRepository;
+    private final LemmasRepository lemmasRepository;
+
+    public StatisticsServiceImpl(SitesRepository sitesRepository, PagesRepository pagesRepository, LemmasRepository lemmasRepository) {
+        this.sitesRepository = sitesRepository;
+        this.pagesRepository = pagesRepository;
+        this.lemmasRepository = lemmasRepository;
+    }
 
     @Override
     public StatisticsResponse getStatistics() {
@@ -56,6 +54,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             item.setStatusTime(sitesRepository.getReferenceById(site.getId()).getStatusTime());
             detailed.add(item);
         }
+
         StatisticsResponse response = new StatisticsResponse();
         StatisticsData data = new StatisticsData();
         data.setTotal(total);
@@ -64,7 +63,5 @@ public class StatisticsServiceImpl implements StatisticsService {
         response.setResult(true);
         return response;
     }
-
-
 
 }

@@ -1,10 +1,9 @@
-package searchengine.dto.pageSearch;
+package searchengine.utils.pagesearch;
 
 import searchengine.model.Indexes;
 import searchengine.model.Lemmas;
 import searchengine.model.Sites;
 import searchengine.repositories.IndexesRepository;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -12,7 +11,6 @@ import java.util.stream.Collectors;
 public class IndexMapSearch {
 
     private Map<Integer, List<Indexes>> indexesMap;
-
     private IndexesRepository indexesRepository;
 
 
@@ -54,6 +52,7 @@ public class IndexMapSearch {
 
 
     }
+
     private Map<Integer, Double> getAbsoluteRelevanceValue(List<Integer> idPages, Set<Lemmas> lemmas) {
         Map<Integer, Map<Lemmas, Double>> rankForPage = idPages.stream()
                 .collect(Collectors.toMap(Function.identity(), page -> getMapLemmasAndRank(page, lemmas)));
@@ -137,6 +136,7 @@ public class IndexMapSearch {
         }
         return ind;
     }
+
     public Map<Integer, Double> getMapForTestAbsoluteRelevanceValue(List<Integer> pages, Set<Lemmas> lemmas) {
         Map<Integer, Map<Lemmas, Double>> rankForPage = pages.stream()
                 .collect(Collectors.toMap(Function.identity(), page -> getMapLemmasAndRank(page, lemmas)));

@@ -1,4 +1,4 @@
-package searchengine.dto.pageSearch;
+package searchengine.dto.pagesearchresponse;
 
 import lombok.Builder;
 import lombok.Getter;

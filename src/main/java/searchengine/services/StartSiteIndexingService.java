@@ -1,7 +1,7 @@
 package searchengine.services;
 
-import searchengine.dto.indexingSites.IndexingSitesResponse;
-import searchengine.dto.indexingSites.IndexingStopResponse;
+import searchengine.dto.indexingsites.IndexingSitesResponse;
+import searchengine.dto.indexingsites.IndexingStopResponse;
 
 public interface StartSiteIndexingService {
 

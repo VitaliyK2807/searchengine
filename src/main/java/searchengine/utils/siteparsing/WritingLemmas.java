@@ -1,11 +1,9 @@
-package searchengine.dto.siteParsing;
+package searchengine.utils.siteparsing;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 import java.lang.String;
-
-import org.hibernate.exception.GenericJDBCException;
-import searchengine.dto.lemmas.LemmaFinder;
+import searchengine.utils.lemmas.LemmaFinder;
 import searchengine.model.Indexes;
 import searchengine.model.Lemmas;
 import searchengine.model.Pages;
@@ -22,9 +20,7 @@ public class WritingLemmas {
     private Pages page;
     private List<Lemmas> lemmasList = new ArrayList<>();
     private List<Indexes> indexesList = new ArrayList<>();
-
     private LemmasRepository lemmasRepository;
-
     private IndexesRepository indexesRepository;
 
 

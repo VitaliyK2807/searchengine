@@ -1,11 +1,11 @@
-package searchengine.dto.lemmas;
+package searchengine.utils.lemmas;
 
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import searchengine.model.Pages;
-
 import java.io.IOException;
+
 @Slf4j
 public class PageReading {
     private String url;
@@ -16,24 +16,19 @@ public class PageReading {
         this.url = url;
     }
 
-    public Pages readPage () {
+    public Pages readPage() throws IOException {
         Pages newPage = new Pages();
-        try {
-            Document page = Jsoup.connect(url)
-                    .timeout(25_000)
-                    .userAgent("Chrome/109.0.5414.120 Safari/532.5")
-                    .referrer("http://www.google.com")
-                    .ignoreContentType(true)
-                    .get();
+        Document page = Jsoup.connect(url)
+                .timeout(25_000)
+                .userAgent("Chrome/109.0.5414.120 Safari/532.5")
+                .referrer("http://www.google.com")
+                .ignoreContentType(true)
+                .get();
 
+        newPage.setPath(getResultPath());
+        newPage.setContent(page.outerHtml());
+        newPage.setCode(page.connection().response().statusCode());
 
-            newPage.setPath(getResultPath());
-            newPage.setContent(page.outerHtml());
-            newPage.setCode(page.connection().response().statusCode());
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
         return newPage;
     }
 

@@ -1,20 +1,13 @@
-package searchengine.dto.siteParsing;
+package searchengine.utils.siteparsing;
 
 import lombok.extern.slf4j.Slf4j;
-import searchengine.config.Site;
-import searchengine.config.SitesList;
 import searchengine.model.*;
 import searchengine.repositories.IndexesRepository;
 import searchengine.repositories.LemmasRepository;
 import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
-
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class Parsing extends Thread{
@@ -22,19 +15,12 @@ public class Parsing extends Thread{
     private ParsingSite parsingSite;
     private boolean stopFJPUser = false;
     private ForkJoinPool forkJoinPool;
-
     public boolean isRun;
     private CopyOnWriteArraySet<String> listUrls;
-    private ConcurrentHashMap<Pages, AssemblyLemma> assemblyLemmas;
-
-    private Map<String, Integer> mapFrequencyLemma;
-
     private PagesRepository pagesRepository;
     private SitesRepository sitesRepository;
     private LemmasRepository lemmasRepository;
     private IndexesRepository indexesRepository;
-
-
 
     public Parsing(Sites webSite,
                    SitesRepository sitesRepository,
@@ -42,7 +28,6 @@ public class Parsing extends Thread{
                    LemmasRepository lemmasRepository,
                    IndexesRepository indexesRepository) {
         listUrls = new CopyOnWriteArraySet<>();
-        assemblyLemmas = new ConcurrentHashMap<>();
         this.webSite = webSite;
         this.sitesRepository = sitesRepository;
         this.pagesRepository = pagesRepository;
@@ -74,13 +59,12 @@ public class Parsing extends Thread{
 
         forkJoinPool = new ForkJoinPool();
 
-
         try {
             forkJoinPool.invoke(parsingSite);
 
             if (stopFJPUser) {
                 printMassageInfo(", was stopped by the user after: ", startParsing);
-                sitesRepository.updateFailed(Status.FAILED,
+                sitesRepository.updateFailed(Status.INDEXED,
                         "Остановлено пользователем!",
                         LocalDateTime.now(),
                         webSite.getId());
@@ -90,7 +74,9 @@ public class Parsing extends Thread{
                 sitesRepository.updateStatusById(Status.INDEXED, LocalDateTime.now(), webSite.getId());
             }
             isRun = false;
+
         } catch (RuntimeException e) {
+            printMessageError(startParsing);
             sitesRepository.updateFailed(Status.FAILED, e.getMessage(), LocalDateTime.now(), webSite.getId());
         }
 
@@ -98,9 +84,9 @@ public class Parsing extends Thread{
 
     public void stopped () {
 
-        parsingSite.stop = true;
-
         forkJoinPool.shutdown();
+
+        parsingSite.stop = true;
 
         stopFJPUser = true;
 

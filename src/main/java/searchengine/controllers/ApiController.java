@@ -3,10 +3,10 @@ package searchengine.controllers;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import searchengine.dto.indexPageResponse.IndexPageResponse;
-import searchengine.dto.indexingSites.IndexingSitesResponse;
-import searchengine.dto.indexingSites.IndexingStopResponse;
-import searchengine.dto.pageSearch.PageSearchResponse;
+import searchengine.dto.indexpageresponse.IndexPageResponse;
+import searchengine.dto.indexingsites.IndexingSitesResponse;
+import searchengine.dto.indexingsites.IndexingStopResponse;
+import searchengine.dto.pagesearchresponse.PageSearchResponse;
 import searchengine.dto.statistics.StatisticsResponse;
 import searchengine.services.IndexPageService;
 import searchengine.services.PageSearchService;
@@ -20,7 +20,7 @@ public class ApiController {
 
     private final StartSiteIndexingService startSiteIndexingService;
     private final StatisticsService statisticsService;
-    private final IndexPageService indexPageService; //Попробовать убрать final
+    private final IndexPageService indexPageService;
     private final PageSearchService pageSearchService;
 
 

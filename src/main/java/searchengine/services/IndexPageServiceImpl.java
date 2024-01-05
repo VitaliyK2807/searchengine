@@ -2,13 +2,12 @@ package searchengine.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import searchengine.config.Site;
 import searchengine.config.SitesList;
-import searchengine.dto.indexPageResponse.IndexPageResponse;
-import searchengine.dto.lemmas.LemmaFinder;
-import searchengine.dto.lemmas.PageReading;
+import searchengine.dto.indexpageresponse.IndexPageResponse;
+import searchengine.utils.lemmas.LemmaFinder;
+import searchengine.utils.lemmas.PageReading;
 import searchengine.model.*;
 import searchengine.repositories.IndexesRepository;
 import searchengine.repositories.LemmasRepository;
@@ -23,17 +22,24 @@ import java.util.Optional;
 @Slf4j
 public class IndexPageServiceImpl implements IndexPageService {
 
-    @Autowired
-    SitesRepository sitesRepository;
-    @Autowired
-    PagesRepository pagesRepository;
-    @Autowired
-    LemmasRepository lemmasRepository;
-    @Autowired
-    IndexesRepository indexesRepository;
+    private final SitesRepository sitesRepository;
+    private final PagesRepository pagesRepository;
+    private final LemmasRepository lemmasRepository;
+    private final IndexesRepository indexesRepository;
+    private final SitesList sitesList;
 
-    @Autowired
-    SitesList sitesList;
+    public IndexPageServiceImpl(SitesRepository sitesRepository,
+                                PagesRepository pagesRepository,
+                                LemmasRepository lemmasRepository,
+                                IndexesRepository indexesRepository,
+                                SitesList sitesList) {
+        this.sitesRepository = sitesRepository;
+        this.pagesRepository = pagesRepository;
+        this.lemmasRepository = lemmasRepository;
+        this.indexesRepository = indexesRepository;
+        this.sitesList = sitesList;
+    }
+
 
     @Override
     public IndexPageResponse indexPageStart(String url) {
@@ -123,7 +129,7 @@ public class IndexPageServiceImpl implements IndexPageService {
 
         return lemma.get();
     }
-    private Pages getPage(String url, Sites webSite) throws RuntimeException {
+    private Pages getPage(String url, Sites webSite) throws RuntimeException, IOException {
         PageReading pageReading = new PageReading(url, webSite.getName());
         Pages newPage = pageReading.readPage();
         newPage.setSiteId(webSite);

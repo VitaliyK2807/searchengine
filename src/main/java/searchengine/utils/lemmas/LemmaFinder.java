@@ -1,16 +1,13 @@
-package searchengine.dto.lemmas;
+package searchengine.utils.lemmas;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.morphology.LuceneMorphology;
-import org.apache.lucene.search.MultiCollectorManager;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 public class LemmaFinder {
     private final LuceneMorphology luceneMorphology;
-
     private static final String[] particlesNames = new String[]{"МЕЖД", "ПРЕДЛ", "СОЮЗ", "МС", "ЧАСТ", "МС-П", "ВВОДН"};
 
     public LemmaFinder(LuceneMorphology luceneMorphology) {
@@ -30,7 +27,6 @@ public class LemmaFinder {
                         map.put(normalWord, 1);
                     }
                 }, HashMap::putAll);
-
     }
 
     public TreeSet<String> getSetLemmas (String text) {
@@ -66,6 +62,7 @@ public class LemmaFinder {
         }
         return false;
     }
+
     private List<String> textCleaning (String text) {
         return Arrays.stream(text.toLowerCase(Locale.ROOT)
                 .replaceAll("([^а-я\\s])", " ")
@@ -75,6 +72,5 @@ public class LemmaFinder {
                 .collect(Collectors.toList());
 
     }
-
 
 }

@@ -1,6 +1,6 @@
 package searchengine.services;
 
-import searchengine.dto.indexPageResponse.IndexPageResponse;
+import searchengine.dto.indexpageresponse.IndexPageResponse;
 
 public interface IndexPageService {
 

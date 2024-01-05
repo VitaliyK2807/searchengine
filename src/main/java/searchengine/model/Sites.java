@@ -1,6 +1,5 @@
 package searchengine.model;
 import lombok.*;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -33,11 +32,6 @@ public class Sites {
     @Column(nullable = false)
     private String name;
 
-//    @OneToMany(mappedBy = "siteId", cascade = CascadeType.ALL)
-//    private Set<Pages> page = new HashSet<>();
-//
-//    @OneToMany(mappedBy = "siteId", cascade = CascadeType.ALL)
-//    private Set<Lemmas> lemmas = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {

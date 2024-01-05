@@ -1,5 +1,6 @@
 package searchengine;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -9,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import searchengine.model.Lemmas;
 import searchengine.repositories.LemmasRepository;
-import searchengine.repositories.SitesRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @DisplayName("Тест скорости чтения лемм")
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Slf4j
 class LemmaReadingSpeedTest {
 
     private List<Lemmas> allLemmas;
@@ -24,9 +25,6 @@ class LemmaReadingSpeedTest {
 
     private String maximumRepeatableWord;
     private String minimumRepeatableWord;
-
-    @Autowired
-    SitesRepository sitesRepository;
 
     @Autowired
     LemmasRepository lemmasRepository;
@@ -39,20 +37,20 @@ class LemmaReadingSpeedTest {
 
         allLemmas = lemmasRepository.findAll();
 
-        System.out.println(System.currentTimeMillis() - fullReadingTime);
+        log.info(String.valueOf(System.currentTimeMillis() - fullReadingTime));
 
-        System.out.println("Общее количество лемм: " + allLemmas.size());
-        System.out.println("Время затраченное на чтение общего списка: " + fullReadingTime + " мс.");
+        log.info("Общее количество лемм: " + allLemmas.size());
+        log.info("Время затраченное на чтение общего списка: " + fullReadingTime + " мс.");
 
         List<String> listWords = getListWords();
 
         maximumRepeatableWord = listWords.get(0);
         minimumRepeatableWord = listWords.get(listWords.size() - 1);
 
-        System.out.println("Максимально повторяющаяся лемма по всем сайтам: " + maximumRepeatableWord);
-        System.out.println("Минимально повторяющеаяя лемма по всем сайтам: " + minimumRepeatableWord);
+        log.info("Максимально повторяющаяся лемма по всем сайтам: " + maximumRepeatableWord);
+        log.info("Минимально повторяющеаяя лемма по всем сайтам: " + minimumRepeatableWord);
 
-        System.out.println("----------------|-------------------------|--------------------------------");
+        log.info("----------------|-------------------------|--------------------------------");
     }
 
     @Test
@@ -64,43 +62,42 @@ class LemmaReadingSpeedTest {
         long startTime = System.currentTimeMillis();
         lemmas = lemmasRepository.findAll();
         lemmas.removeIf(l -> !l.getLemma().equals(maximumRepeatableWord));
-        System.out.println("--------------------------------------------------------------------------");
-        System.out.println("Затрачено на выполнения поиска: " + (System.currentTimeMillis() - startTime) + " мс.");
-        System.out.println("--------------------------------------------------------------------------");
-        System.out.println("Количество найденных записей в таблице Леммы: " + lemmas.size());
-        System.out.println("----------------|-------------------------|--------------------------------");
+        log.info("--------------------------------------------------------------------------");
+        log.info("Затрачено на выполнения поиска: " + (System.currentTimeMillis() - startTime) + " мс.");
+        log.info("--------------------------------------------------------------------------");
+        log.info("Количество найденных записей в таблице Леммы: " + lemmas.size());
+        log.info("----------------|-------------------------|--------------------------------");
 
-        System.out.println("Старт поиска со словом, которое минимально встречается на большинстве сайтах");
-        lemmas = new ArrayList<>();
+        log.info("Старт поиска со словом, которое минимально встречается на большинстве сайтах");
         startTime = System.currentTimeMillis();
         lemmas = lemmasRepository.findAll();
         lemmas.removeIf(l -> !l.getLemma().equals(minimumRepeatableWord));
-        System.out.println("--------------------------------------------------------------------------");
-        System.out.println("Затрачено на выполнения поиска: " + (System.currentTimeMillis() - startTime) + " мс.");
-        System.out.println("--------------------------------------------------------------------------");
-        System.out.println("Количество найденных записей в таблице Леммы: " + lemmas.size());
+        log.info("--------------------------------------------------------------------------");
+        log.info("Затрачено на выполнения поиска: " + (System.currentTimeMillis() - startTime) + " мс.");
+        log.info("--------------------------------------------------------------------------");
+        log.info("Количество найденных записей в таблице Леммы: " + lemmas.size());
     }
 
     @Test
     @DisplayName("Тест времени поиска леммы, путем запроса в таблице Леммы")
     void testOptionTwo () {
-        System.out.println("Старт поиска со словом, которое максимально встречается на большинстве сайтах");
+        log.info("Старт поиска со словом, которое максимально встречается на большинстве сайтах");
         List<Lemmas> lemmas;
         long startTime = System.currentTimeMillis();
         lemmas = lemmasRepository.findByLemma(maximumRepeatableWord);
-        System.out.println("Затрачено на выполнения поиска: " + (System.currentTimeMillis() - startTime) + " мс.");
-        System.out.println("--------------------------------------------------------------------------");
-        System.out.println("Количество найденных записей в таблице Леммы: " + lemmas.size());
-        System.out.println("----------------|-------------------------|--------------------------------");
+        log.info("Затрачено на выполнения поиска: " + (System.currentTimeMillis() - startTime) + " мс.");
+        log.info("--------------------------------------------------------------------------");
+        log.info("Количество найденных записей в таблице Леммы: " + lemmas.size());
+        log.info("----------------|-------------------------|--------------------------------");
 
-        System.out.println("Старт поиска со словом, которое минимально встречается на большинстве сайтах");
+        log.info("Старт поиска со словом, которое минимально встречается на большинстве сайтах");
         lemmas = new ArrayList<>();
         startTime = System.currentTimeMillis();
         lemmas = lemmasRepository.findByLemma(minimumRepeatableWord);
-        System.out.println("--------------------------------------------------------------------------");
-        System.out.println("Затрачено на выполнения поиска: " + (System.currentTimeMillis() - startTime) + " мс.");
-        System.out.println("--------------------------------------------------------------------------");
-        System.out.println("Количество найденных записей в таблице Леммы: " + lemmas.size());
+        log.info("--------------------------------------------------------------------------");
+        log.info("Затрачено на выполнения поиска: " + (System.currentTimeMillis() - startTime) + " мс.");
+        log.info("--------------------------------------------------------------------------");
+        log.info("Количество найденных записей в таблице Леммы: " + lemmas.size());
     }
 
     private List<String> getListWords() {

@@ -1,6 +1,7 @@
 package searchengine;
 
 import junit.framework.TestCase;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -8,22 +9,21 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import searchengine.dto.pageSearch.IndexMapSearch;
+import searchengine.utils.pagesearch.IndexMapSearch;
 import searchengine.model.Indexes;
 import searchengine.model.Lemmas;
-import searchengine.model.Pages;
 import searchengine.model.Sites;
 import searchengine.repositories.IndexesRepository;
 import searchengine.repositories.LemmasRepository;
 import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
-import searchengine.services.PageSearchServiceImpl;
 
 import java.util.*;
 
 @DisplayName("Тест расчета релевантности")
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Slf4j
 class PageSearchServiceImplTest extends TestCase {
     private Set<Lemmas> lemmas;
     private List<Integer> pages;

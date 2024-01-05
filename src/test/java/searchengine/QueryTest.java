@@ -1,6 +1,7 @@
 package searchengine;
 
 import junit.framework.TestCase;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -11,10 +12,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import searchengine.dto.lemmas.LemmaFinder;
+import searchengine.utils.lemmas.LemmaFinder;
 import searchengine.model.Pages;
 import searchengine.repositories.PagesRepository;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
@@ -24,6 +24,7 @@ import java.util.TreeSet;
 @DisplayName("Тест поиска снипетов")
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Slf4j
 class QueryTest  extends TestCase {
     private LemmaFinder finder;
     private static final Integer DIFFERENCE = 3;
@@ -56,7 +57,7 @@ class QueryTest  extends TestCase {
 
         arrayIndexes.forEach(i -> listReadyText.add(getString(i)));
 
-        listReadyText.forEach(System.out::println);
+        listReadyText.forEach(t -> log.info(t));
     }
 
     private String getString(Integer index) {

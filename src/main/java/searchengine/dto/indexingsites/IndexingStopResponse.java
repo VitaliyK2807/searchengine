@@ -1,4 +1,4 @@
-package searchengine.dto.indexingSites;
+package searchengine.dto.indexingsites;
 
 import lombok.Data;
 import lombok.Getter;
@@ -7,18 +7,16 @@ import lombok.Setter;
 @Data
 @Getter
 @Setter
-public class IndexingSitesResponse {
-
+public class IndexingStopResponse {
     private boolean result;
     private String error;
 
-    public IndexingSitesResponse(boolean result, String error) {
+    public IndexingStopResponse(boolean result, String error) {
         this.result = result;
         this.error = error;
     }
 
-    public IndexingSitesResponse(boolean result) {
+    public IndexingStopResponse(boolean result) {
         this.result = result;
     }
-
 }

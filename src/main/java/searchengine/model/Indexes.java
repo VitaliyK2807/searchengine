@@ -1,9 +1,8 @@
 package searchengine.model;
+
 import lombok.*;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.persistence.*;
-
 import java.util.Objects;
 
 @Getter

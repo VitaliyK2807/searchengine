@@ -1,9 +1,7 @@
-package searchengine.dto.pageSearch;
+package searchengine.utils.pagesearch;
 
 import lombok.*;
-import searchengine.model.Pages;
 import searchengine.model.Sites;
-
 import java.util.Objects;
 
 @NoArgsConstructor

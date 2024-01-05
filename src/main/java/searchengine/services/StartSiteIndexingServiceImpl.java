@@ -1,11 +1,11 @@
 package searchengine.services;
+
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import searchengine.config.SitesList;
-import searchengine.dto.indexingSites.IndexingSitesResponse;
-import searchengine.dto.indexingSites.IndexingStopResponse;
-import searchengine.dto.siteParsing.Parsing;
+import searchengine.dto.indexingsites.IndexingSitesResponse;
+import searchengine.dto.indexingsites.IndexingStopResponse;
+import searchengine.utils.siteparsing.Parsing;
 import searchengine.model.Sites;
 import searchengine.model.Status;
 import searchengine.repositories.IndexesRepository;
@@ -16,28 +16,33 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Service
 @Slf4j
 public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
 
     private boolean isSiteIndexing = true;
     private Parsing[] parsings;
-    private static final int COUNT_PROCESSORS = 3;
-            //Runtime.getRuntime().availableProcessors();
+    private static final int COUNT_PROCESSORS = Runtime.getRuntime().availableProcessors();
     private List<Sites> listWebSites;
     private Thread watchingThread;
     private Runnable parsingWebSites;
-    @Autowired
-    SitesRepository sitesRepository;
-    @Autowired
-    PagesRepository pagesRepository;
-    @Autowired
-    LemmasRepository lemmasRepository;
-    @Autowired
-    IndexesRepository indexesRepository;
-    @Autowired
-    SitesList sitesList;
+    private final SitesRepository sitesRepository;
+    private final PagesRepository pagesRepository;
+    private final LemmasRepository lemmasRepository;
+    private final IndexesRepository indexesRepository;
+    private final SitesList sitesList;
+
+    public StartSiteIndexingServiceImpl(SitesRepository sitesRepository,
+                                        PagesRepository pagesRepository,
+                                        LemmasRepository lemmasRepository,
+                                        IndexesRepository indexesRepository,
+                                        SitesList sitesList) {
+        this.sitesRepository = sitesRepository;
+        this.pagesRepository = pagesRepository;
+        this.lemmasRepository = lemmasRepository;
+        this.indexesRepository = indexesRepository;
+        this.sitesList = sitesList;
+    }
 
     @Override
     public IndexingSitesResponse indexingStart() {
@@ -56,7 +61,6 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
             lemmasRepository.deleteAll();
 
             parsings = new Parsing[sitesList.getSites().size()];
-
 
             threadLoading();
 
@@ -80,6 +84,8 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
             watchingThread.interrupt();
 
             isSiteIndexing = true;
+
+            stopped(parsings.length);
 
             return new IndexingStopResponse(true);
         }
@@ -120,6 +126,7 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
                         countThread = countWorkerThreads(countThread);
                     }
                 }
+
 
                 log.info("Website indexing completed!");
                 log.info("Time spent: " + ((System.currentTimeMillis() - start) / 1000) + " s.");

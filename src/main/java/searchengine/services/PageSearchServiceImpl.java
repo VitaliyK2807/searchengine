@@ -2,16 +2,16 @@ package searchengine.services;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import searchengine.dto.lemmas.LemmaFinder;
-import searchengine.dto.pageSearch.*;
+import searchengine.dto.pagesearchresponse.DataSearch;
+import searchengine.dto.pagesearchresponse.PageSearchResponse;
+import searchengine.utils.lemmas.LemmaFinder;
+import searchengine.utils.pagesearch.*;
 import searchengine.model.*;
 import searchengine.repositories.IndexesRepository;
 import searchengine.repositories.LemmasRepository;
 import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -25,23 +25,29 @@ public class PageSearchServiceImpl implements PageSearchService{
     private int limit;
     private final int PERCENT = 80;
     private Set<Relevance> setRelevance;
-    private HtmlParser htmlParser;
 
-    @Autowired
-    PagesRepository pagesRepository;
-    @Autowired
-    LemmasRepository lemmasRepository;
-    @Autowired
-    IndexesRepository indexesRepository;
-    @Autowired
-    SitesRepository sitesRepository;
+    private final PagesRepository pagesRepository;
+    private final LemmasRepository lemmasRepository;
+    private final IndexesRepository indexesRepository;
+    private final SitesRepository sitesRepository;
+
+    public PageSearchServiceImpl(PagesRepository pagesRepository,
+                                 LemmasRepository lemmasRepository,
+                                 IndexesRepository indexesRepository,
+                                 SitesRepository sitesRepository) {
+        this.pagesRepository = pagesRepository;
+        this.lemmasRepository = lemmasRepository;
+        this.indexesRepository = indexesRepository;
+        this.sitesRepository = sitesRepository;
+    }
+
     @Override
     public PageSearchResponse pagesSearch(String query, String site, int offset, int limit) {
         this.query = query;
         this.site = site;
         this.offset = offset;
         this.limit = limit;
-        htmlParser = new HtmlParser();
+
         return search();
     }
 
@@ -74,7 +80,7 @@ public class PageSearchServiceImpl implements PageSearchService{
                 }
         );
 
-        System.out.println("Затрачено времени: " + ((System.currentTimeMillis() - start)) / 1000);
+        log.info("Затрачено времени: " + ((System.currentTimeMillis() - start)) / 1000);
 
         if(setRelevance.isEmpty()) {
             return new PageSearchResponse(false, "По запросу данных не найдено!");
@@ -97,12 +103,12 @@ public class PageSearchServiceImpl implements PageSearchService{
 
     private DataSearch getDataSearch(Relevance relevance) {
         Pages page = pagesRepository.findById(relevance.getPageId()).get();
-
+        HtmlParser htmlParser = new HtmlParser(page.getContent());
         return DataSearch.builder()
                 .site(relevance.getSite().getUrl())
                 .siteName(relevance.getSite().getName())
                 .uri(page.getPath())
-                .title(htmlParser.getTitle(page.getContent()))
+                .title(htmlParser.getTitle())
                 .snippet(htmlParser.getSnippets(query))
                 .relevance(relevance.getRelativeRelevance())
                 .build();

@@ -1,27 +1,20 @@
-package searchengine.dto.siteParsing;
+package searchengine.utils.siteparsing;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
-import searchengine.dto.lemmas.LemmaFinder;
-import searchengine.model.Lemmas;
 import searchengine.model.Pages;
 import searchengine.model.Sites;
-import searchengine.model.Status;
 import searchengine.repositories.IndexesRepository;
 import searchengine.repositories.LemmasRepository;
 import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
-
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -61,10 +54,8 @@ public class ParsingSite extends RecursiveAction {
 
     }
 
-
     @Override
     protected void compute() {
-
         if (stop || fatalError) {
             return;
         }
@@ -88,7 +79,6 @@ public class ParsingSite extends RecursiveAction {
 
         }
         listTasks.forEach(ParsingSite::join);
-
     }
 
     private TreeSet<String> parsingLinksSite() {
@@ -102,7 +92,6 @@ public class ParsingSite extends RecursiveAction {
                 }
             });
         } catch (IOException e) {
-            //fatalError = true;
             throw new RuntimeException(e);
         }
 
@@ -130,9 +119,11 @@ public class ParsingSite extends RecursiveAction {
                 sitesRepository.updateLastErrorAndStatusTimeById("", LocalDateTime.now(), site.getId());
                 writeLemma(code, page, document.text());
                 return document.select("a");
+
             } catch (HttpStatusException hse) {
-                log.error(hse.getMessage());
+                log.error(hse.getMessage() + " - " + url);
                 return new Elements();
+
             } catch (SocketTimeoutException ste) {
                 log.error(ste.getMessage() + " - " + url);
                 return new Elements();
@@ -219,9 +210,11 @@ public class ParsingSite extends RecursiveAction {
         }
         return path.substring(getDomainUrl().length());
     }
+
     private String getDomainUrl() {
         return url.substring(0, url.indexOf("/") + 2) + domain.toLowerCase();
     }
+
     private String getDomainUrlWWW() {
         return url.substring(0, url.indexOf("/") + 2) + "www." + domain.toLowerCase();
     }
