@@ -29,5 +29,8 @@ public interface LemmasRepository extends JpaRepository<Lemmas, Integer> {
     int getTotalSitesWithLemmas (Sites siteId);
 
     @Override
+    Optional<Lemmas> findById(Integer integer);
+
+    @Override
     void deleteById(Integer integer);
 }

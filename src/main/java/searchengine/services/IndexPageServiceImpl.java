@@ -15,6 +15,7 @@ import searchengine.repositories.PagesRepository;
 import searchengine.repositories.SitesRepository;
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,6 +68,7 @@ public class IndexPageServiceImpl implements IndexPageService {
     }
 
     private IndexPageResponse startReadPage (Site site, String url){
+        long start = System.currentTimeMillis();
         Sites webSite = getModelWebSite(site);
         LemmaFinder finder;
         Pages page;
@@ -75,97 +77,114 @@ public class IndexPageServiceImpl implements IndexPageService {
             finder = new LemmaFinder(new RussianLuceneMorphology());
             page = getPage(url, webSite);
 
-            sitesRepository.updateStatusById(Status.INDEXED, LocalDateTime.now(), webSite.getId());
-
-            finder.getCollectionLemmas(page.getContent())
-                    .entrySet()
-                    .forEach(word -> {
-                        Lemmas lemma = saveLemmas(word.getKey(), webSite);
-                        saveIndex(lemma, page, word.getValue());
-                    });
+            updateOrCreateRecord(page, finder);
 
         } catch (RuntimeException ex) {
-            sitesRepository.updateFailed(Status.FAILED,
-                    "Проблема чтения страницы!",
-                    LocalDateTime.now(),
-                    webSite.getId());
             log.error("Page indexing: RuntimeException for URL -> " + site.getUrl() + " " + ex.getMessage());
 
             return new IndexPageResponse(false,
                     "Проблема чтения страницы!");
-        } catch (IOException IOEx) {
-            log.error(IOEx.getMessage());
+        } catch (IOException iOEx) {
+            log.error(iOEx.getMessage());
 
             return new IndexPageResponse(false,
                     "Внутренняя ошибка!");
         }
 
         pagesRepository.save(page);
-
+        sitesRepository.updateStatusById(Status.INDEXED, LocalDateTime.now(), webSite.getId());
+        log.info("Time spent: " + (System.currentTimeMillis() - start) + " s.");
+        log.info("Add/update page completed");
         return new IndexPageResponse(true);
     }
-    private void saveIndex (Lemmas lemma, Pages page, float rank) {
-        Indexes index = new Indexes();
-        index.setPage(page);
-        index.setLemma(lemma);
-        index.setRank(rank);
-        indexesRepository.save(index);
+
+    private void updateOrCreateRecord(Pages page, LemmaFinder finder) {
+        if (page.getId() == 0) {
+            createRecord(pagesRepository.save(page), finder);
+        } else {
+            updateRecord(page, finder);
+        }
     }
 
-    private Lemmas saveLemmas (String word, Sites site) {
+    private void updateRecord(Pages page, LemmaFinder finder) {
+        Optional<List<Indexes>> indexes = indexesRepository.findByPageId(page.getId());
+        if (indexes.isPresent()) {
+            indexesRepository.deleteAll(indexes.get());
+            indexes.get().stream()
+                    .map(index -> lemmasRepository.findById(index.getId()))
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .forEach(lemma -> {
+                        if (lemma.getFrequency() <= 1) {
+                            lemmasRepository.deleteById(lemma.getId());
+                        } else {
+                            lemmasRepository.updateLemma(lemma.getFrequency() - 1, lemma.getId());
+                        }
+                    });
+            createRecord(page, finder);
+        }
+    }
 
+    private void createRecord(Pages page, LemmaFinder finder) {
+        List<Lemmas> lemmasList = new ArrayList<>();
+        List<Indexes> indexesList = new ArrayList<>();
+        List<Lemmas> lemmas = new ArrayList<>();
+        finder.getCollectionLemmas(page.getContent())
+                .entrySet()
+                .forEach(word -> {
+                    Lemmas lemma = getLemma(word.getKey(), page.getSiteId());
+                    if (lemma.getId() == 0) {
+                        lemmasList.add(lemma);
+                    }
+                    indexesList.add(getIndex(word.getValue(), lemma, page));
+                });
+        lemmas.addAll(lemmasRepository.saveAll(lemmasList));
+        lemmas.stream().forEach(lemma -> indexesList.forEach(index -> {
+            if (index.getLemma().getLemma().equals(lemma.getLemma())) {
+                index.getLemma().setId(lemma.getId());
+            }
+        }));
+        indexesRepository.saveAll(indexesList);
+    }
+
+    private Indexes getIndex(int rank, Lemmas lemma, Pages page) {
+        return Indexes.builder()
+                .lemma(lemma)
+                .rank(rank)
+                .page(page)
+                .build();
+    }
+
+    private Lemmas getLemma(String word, Sites site) {
         Optional<Lemmas> lemma = lemmasRepository.findByLemmaAndSiteId(word, site);
 
-        if (lemma.isEmpty()) {
-            Lemmas newLemma = new Lemmas();
-            newLemma.setLemma(word);
-            newLemma.setFrequency(1);
-            newLemma.setSiteId(site);
+        if (!lemma.isPresent()) {
 
-            return lemmasRepository.save(newLemma);
+            return Lemmas.builder()
+                    .lemma(word)
+                    .frequency(1)
+                    .siteId(site)
+                    .build();
         }
-
         lemmasRepository.updateLemma(lemma.get().getFrequency() + 1, lemma.get().getId());
 
         return lemma.get();
     }
+
+
     private Pages getPage(String url, Sites webSite) throws RuntimeException, IOException {
-        PageReading pageReading = new PageReading(url, webSite.getName());
-        Pages newPage = pageReading.readPage();
-        newPage.setSiteId(webSite);
+        Optional<Pages> page = pagesRepository.getPageByPath(getResultPath(url));
 
-        if (newPage.getPath().isEmpty()) {
-            throw new RuntimeException();
-
+        if (!page.isPresent()) {
+            PageReading pageReading = new PageReading(url, webSite.getName());
+            Pages newPage = pageReading.readPage();
+            newPage.setSiteId(webSite);
+            return newPage;
         }
-
-        Optional<Pages> page = pagesRepository.getPageByPath(newPage.getPath());
-
-        if (page.isEmpty()) {
-            return pagesRepository.save(newPage);
-        }
-
-        deleteRecords(page.get());
-
-        return pagesRepository.save(newPage);
+        return page.get();
     }
 
-    private void deleteRecords (Pages page) {
-        indexesRepository.findIndexesByIdPage(page.getId()).forEach(index -> deletingRecordsInTableLemma(index));
-        pagesRepository.delete(page);
-        indexesRepository.DeleteIndexesByPage(page.getId());
-    }
 
-    private void deletingRecordsInTableLemma (Indexes index) {
-        Lemmas lemma = lemmasRepository.findById(index.getId()).get();
-        lemma.setFrequency(lemma.getFrequency() - 1);
-
-        if (lemma.getFrequency() == 0) {
-            lemmasRepository.deleteById(index.getLemma().getId());
-        } else {
-            lemmasRepository.updateLemma(lemma.getFrequency(), lemma.getId());
-        }
-    }
     private Sites getModelWebSite(Site site) {
         Optional<Sites> webSite = Optional.ofNullable(sitesRepository.findByUrl(site.getUrl()));
 
@@ -175,9 +194,6 @@ public class IndexPageServiceImpl implements IndexPageService {
 
             return sitesRepository.save(newWebSite);
         }
-
-        sitesRepository.updateLastErrorAndStatusTimeById("", LocalDateTime.now(), webSite.get().getId());
-        log.info("Updated a website " + webSite.get().getName() + " entry to the database");
 
         return webSite.get();
     }
@@ -199,22 +215,35 @@ public class IndexPageServiceImpl implements IndexPageService {
             int start = url.indexOf("/") + 2;
             int end = url.substring(start).indexOf("/") + start;
 
-            return url.substring(0, end);
+            return getPathWithAbbreviation(url.substring(0, end));
         }
 
         if (url.startsWith("www")) {
             int end = url.indexOf("/");
 
-            return "https//" + url.substring(0, end);
+            return "https://" + url.substring(0, end);
         }
 
         String regex = "[a-z0-9]+";
         if (url.substring(0, url.indexOf(".")).matches(regex)) {
-            return "https//www." + url.substring(0, url.indexOf("/"));
+            return "https://www." + url.substring(0, url.indexOf("/"));
         }
 
         return "";
     }
 
+    private String getPathWithAbbreviation(String url) {
+        int start = url.indexOf("/") + 2;
+        if (url.substring(start).startsWith("www")) {
+            return url;
+        }
+        return "https://www." + url.substring(start);
+    }
+
+    private String getResultPath(String url) {
+        int start = url.indexOf("/") + 2;
+        int end = url.substring(start).indexOf("/") + start;
+        return url.substring(end);
+    }
 
 }

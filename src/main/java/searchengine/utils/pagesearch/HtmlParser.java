@@ -1,14 +1,15 @@
 package searchengine.utils.pagesearch;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import searchengine.utils.lemmas.LemmaFinder;
 import java.io.IOException;
 import java.util.*;
-
+@Slf4j
 public class HtmlParser {
-    private static final Integer DIFFERENCE = 3;
+    private static final Integer DIFFERENCE = 4;
     private static final Integer COUNTS_SYMBOL = 200;
     private String[] wordsContent;
     private LemmaFinder finder;
@@ -19,7 +20,7 @@ public class HtmlParser {
         try {
             finder = new LemmaFinder(new RussianLuceneMorphology());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error("HtmlParser/ " + e.getMessage());
         }
     }
 
@@ -30,16 +31,16 @@ public class HtmlParser {
     public String getSnippets(String query) {
         String text = document.text();
         wordsContent = text.split("\\s+");
-        TreeSet<String>  setLemmas = finder.getSetLemmas(query);
+        Set<String> setLemmas = finder.getSetLemmas(query);
 
-        StringJoiner joiner = new StringJoiner(". ");
+        StringJoiner joiner = new StringJoiner("... ");
 
         List<String> listReadyText = new ArrayList<>();
 
         getArrayIndexes(getModifiedArray(wordsContent), setLemmas)
                 .forEach(i -> listReadyText.add(getString(i)));
 
-        listReadyText.forEach(string -> joiner.add(string));
+        listReadyText.forEach(joiner::add);
 
        if (joiner.toString().length() > COUNTS_SYMBOL) {
            return joiner.toString().substring(0, COUNTS_SYMBOL);
@@ -66,18 +67,13 @@ public class HtmlParser {
 
 
     private boolean testDiff(Integer from) {
-        if (from <= 0) {
-            return true;
-        }
-        return false;
+        return  from <= 0;
     }
 
     private boolean testAddition (Integer to) {
-        if (to >= wordsContent.length) {
-            return true;
-        }
-        return false;
+        return to >= wordsContent.length;
     }
+
     private String redyString(int from, int to, int index) {
         StringJoiner joiner = new StringJoiner("\s");
         for (int i = from; i < to; i++) {
@@ -89,8 +85,8 @@ public class HtmlParser {
         }
         return joiner.toString();
     }
-    private ArrayList<Integer> getArrayIndexes(ArrayList<String> lemmasInText, TreeSet<String> set) {
-        ArrayList<Integer> arrayIndexes = new ArrayList<>();
+    private List<Integer> getArrayIndexes(List<String> lemmasInText, Set<String> set) {
+        List<Integer> arrayIndexes = new ArrayList<>();
         set.forEach(lemma -> {
             for (int i = 0; i < lemmasInText.size(); i++) {
                 if (lemmasInText.get(i).equals(lemma)) {
@@ -103,8 +99,8 @@ public class HtmlParser {
         return arrayIndexes;
     }
 
-    private ArrayList<String> getModifiedArray(String[] wordsContent) {
-        ArrayList<String> listLemmas = new ArrayList<>();
+    private List<String> getModifiedArray(String[] wordsContent) {
+        List<String> listLemmas = new ArrayList<>();
         for (int i = 0; i < wordsContent.length; i++) {
             listLemmas.add(finder.getNormalForm(wordsContent[i]));
         }

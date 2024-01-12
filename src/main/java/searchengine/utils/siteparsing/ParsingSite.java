@@ -63,7 +63,7 @@ public class ParsingSite extends RecursiveAction {
         TreeSet<String> urlLinks = parsingLinksSite();
         List<ParsingSite> listTasks = new ArrayList<>();
 
-        if (urlLinks.size() != 0) {
+        if (!urlLinks.isEmpty()) {
                 urlLinks.forEach(child -> {
                     ParsingSite parsingSite = new ParsingSite(child,
                             domain,
@@ -164,15 +164,11 @@ public class ParsingSite extends RecursiveAction {
     }
 
     private boolean testElements (String element) {
-        if (element != ""
+        return !element.equals("")
                 && element != null
                 && !listUrls.equals(testPath(element))
                 && (endsWith(element, element.endsWith(".html")) || element.endsWith("/"))
-                && !(element.equals(getDomainUrl()) || element.equals(getDomainUrlWWW()))) {
-            return true;
-        }
-
-        return false;
+                && !(element.equals(getDomainUrl()) || element.equals(getDomainUrlWWW()));
     }
 
     private boolean endsWith (String element, boolean ends) {
@@ -183,10 +179,7 @@ public class ParsingSite extends RecursiveAction {
         int lastSlash = element.lastIndexOf('/');
         String string = element.substring(lastSlash + 1);
 
-        if (string.matches(regex)) {
-            return true;
-        }
-        return false;
+        return string.matches(regex);
     }
     private String getRegexUrl() {
         return "http[s]?://" + "[www.]?" + domain.toLowerCase() + "/[^,\\s\"><«»а-яА-Я]+";

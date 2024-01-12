@@ -3,7 +3,6 @@ package searchengine.utils.lemmas;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.morphology.LuceneMorphology;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class LemmaFinder {
@@ -29,7 +28,7 @@ public class LemmaFinder {
                 }, HashMap::putAll);
     }
 
-    public TreeSet<String> getSetLemmas (String text) {
+    public Set<String> getSetLemmas (String text) {
         return textCleaning(text)
                 .stream()
                 .filter(word -> !anyWordBaseBelongToParticle(luceneMorphology.getMorphInfo(word)))
@@ -39,7 +38,7 @@ public class LemmaFinder {
                     if (!set.contains(normalWord)) {
                         set.add(normalWord);
                     }
-                }, TreeSet::addAll);
+                }, Set::addAll);
     }
 
     public String getNormalForm(String word) {
@@ -69,7 +68,7 @@ public class LemmaFinder {
                 .trim()
                 .split("\\s+"))
                 .filter(s -> !s.isEmpty())
-                .collect(Collectors.toList());
+                .toList();
 
     }
 

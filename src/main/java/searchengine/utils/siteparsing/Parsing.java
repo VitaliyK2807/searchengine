@@ -15,7 +15,7 @@ public class Parsing extends Thread{
     private ParsingSite parsingSite;
     private boolean stopFJPUser = false;
     private ForkJoinPool forkJoinPool;
-    public boolean isRun;
+    private boolean isRun;
     private CopyOnWriteArraySet<String> listUrls;
     private PagesRepository pagesRepository;
     private SitesRepository sitesRepository;
@@ -101,6 +101,10 @@ public class Parsing extends Thread{
         log.error("Parsing of the site: " + webSite.getName() + ", stopped in: " +
                 ((System.currentTimeMillis() - startParsing) / 1000) + " s.");
         log.error("Added number of entries: " + listUrls.size() + ", for site: " + webSite.getName());
+    }
+
+    public boolean isRun() {
+        return isRun;
     }
 
 }

@@ -23,9 +23,7 @@ public class PageSearchServiceImpl implements PageSearchService{
     private String site;
     private int offset;
     private int limit;
-    private final int PERCENT = 80;
-    private Set<Relevance> setRelevance;
-
+    private static final int PERCENT = 90;
     private final PagesRepository pagesRepository;
     private final LemmasRepository lemmasRepository;
     private final IndexesRepository indexesRepository;
@@ -52,17 +50,25 @@ public class PageSearchServiceImpl implements PageSearchService{
     }
 
     private PageSearchResponse search() {
-        setRelevance = new HashSet<>();
+        Set<Relevance> setRelevance = new HashSet<>();
         long start = System.currentTimeMillis();
         List<Sites> sites = getSites(site);
         Map<Sites, Set<Lemmas>> lemmas = new HashMap<>();
+
         if (sites.isEmpty()) {
             return new PageSearchResponse(false, ("Сайты не найдены!"));
+        }
+
+        if (requestForTheSiteParameter(sites)) {
+            log.error(getIndexingErrorMessage(site));
+            return new PageSearchResponse(false, getIndexingErrorMessage(site));
         }
 
         sites.forEach(webSite -> {
             if (indexingCheck(webSite)) {
                 lemmas.put(webSite, getListOfLemmasToSearch(webSite));
+            } else {
+                log.error(getIndexingErrorMessage(webSite.getName()));
             }
         });
 
@@ -80,30 +86,42 @@ public class PageSearchServiceImpl implements PageSearchService{
                 }
         );
 
-        log.info("Затрачено времени: " + ((System.currentTimeMillis() - start)) / 1000);
+        log.info("Затрачено времени: " + (System.currentTimeMillis() - start) / 1000);
 
         if(setRelevance.isEmpty()) {
-            return new PageSearchResponse(false, "По запросу данных не найдено!");
+            return new PageSearchResponse(false, "По введенному запросу, данных не найдено!");
         }
 
-        return new PageSearchResponse(true, setRelevance.size(), getLimitList(setRelevance));
+        List<DataSearch> fynalyList = getLimitList(setRelevance);
+        if (fynalyList.isEmpty()) {
+            return new PageSearchResponse(false, "Ошибка формирования финального списка!");
+        }
+
+        return new PageSearchResponse(true, setRelevance.size(), fynalyList);
     }
 
     private List<DataSearch> getLimitList(Set<Relevance> setRelevances) {
         return setRelevances.stream()
                 .sorted(Comparator.comparingDouble(Relevance::getRelativeRelevance))
                 .sorted(Collections.reverseOrder())
-                .collect(Collectors.toList())
-                .subList(offset, limit)
+                .toList()
+                .subList(offset, getToIndex(setRelevances.size()))
                 .stream()
-                .map(r -> getDataSearch(r))
+                .map(this::getDataSearch)
                 .sorted(Comparator.comparingDouble(DataSearch::getRelevance))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private DataSearch getDataSearch(Relevance relevance) {
-        Pages page = pagesRepository.findById(relevance.getPageId()).get();
+        Optional<Pages> foundPage = pagesRepository.findById(relevance.getPageId());
+        if (foundPage.isEmpty()) {
+            log.error("Page not found in method: PageSearchServiceImpl/getDataSearch");
+        }
+
+        Pages page = foundPage.get();
+
         HtmlParser htmlParser = new HtmlParser(page.getContent());
+
         return DataSearch.builder()
                 .site(relevance.getSite().getUrl())
                 .siteName(relevance.getSite().getName())
@@ -115,14 +133,20 @@ public class PageSearchServiceImpl implements PageSearchService{
     }
 
     private Set<Lemmas> getModifiedListOfLemmas(Set<Lemmas> lemmas) {
+        if (lemmas.isEmpty()) {
+            log.error("Empty set: PageSearchServiceImp/getModifiedListOfLemmas");
+            return new HashSet<>();
+        }
+
         if (lemmas.size() == 1) {
             return lemmas;
         }
-        int max = lemmas.stream()
+
+        double max = lemmas.stream()
                 .max(Comparator.comparing(Lemmas::getFrequency))
                 .get()
                 .getFrequency();
-        int percentageValue = (int) Math.ceil(max / 100 * PERCENT);
+        int percentageValue = (int) Math.ceil(max * PERCENT / 100);
 
         return lemmas.stream()
                 .filter(l -> l.getFrequency() < percentageValue)
@@ -130,13 +154,9 @@ public class PageSearchServiceImpl implements PageSearchService{
     }
 
     private boolean indexingCheck(Sites webSite) {
-        if (webSite.getStatus().equals(Status.INDEXED)) {
-            return true;
-        }
-
-        log.error("Сайт " + webSite.getName() + ", не проиндексирован!");
-        return false;
+        return webSite.getStatus().equals(Status.INDEXED);
     }
+
     private List<Sites> getSites(String site) {
         if (site == null || site.isBlank()) {
            return sitesRepository.findAll();
@@ -160,7 +180,7 @@ public class PageSearchServiceImpl implements PageSearchService{
         try {
             lemmaFinder = new LemmaFinder(new RussianLuceneMorphology());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error("PageSearchServiceImpl/getListOfLemmasToSearch" + e.getMessage());
         }
 
         return lemmaFinder.getSetLemmas(query)
@@ -169,5 +189,24 @@ public class PageSearchServiceImpl implements PageSearchService{
                             .filter(Optional::isPresent)
                             .map(Optional::get)
                             .collect(Collectors.toSet());
+    }
+
+    private Integer getToIndex(Integer setSize) {
+        return setSize < 10 ? setSize : limit;
+    }
+    private boolean requestForTheSiteParameter(List<Sites> sitesList) {
+        if (site == null || site.isEmpty()) {
+            return false;
+        }
+        for (Sites webSite : sitesList) {
+            if (webSite.getUrl().equals(site)) {
+                return !webSite.getStatus().equals(Status.INDEXED);
+            }
+        }
+        return true;
+    }
+
+    private String getIndexingErrorMessage(String webSite) {
+        return "Сайт " + webSite + ", не проиндексирован!";
     }
 }

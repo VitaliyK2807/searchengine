@@ -15,10 +15,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import searchengine.utils.lemmas.LemmaFinder;
 import searchengine.model.Pages;
 import searchengine.repositories.PagesRepository;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringJoiner;
-import java.util.TreeSet;
+
+import java.util.*;
 
 
 @DisplayName("Тест поиска снипетов")
@@ -29,7 +27,7 @@ class QueryTest  extends TestCase {
     private LemmaFinder finder;
     private static final Integer DIFFERENCE = 3;
     private String query = "найти новую книгу по программированию";
-    private TreeSet<String> setLemmas;
+    private Set<String> setLemmas;
     private String text;
     private Pages page;
     private String[] wordsContent;
@@ -48,7 +46,7 @@ class QueryTest  extends TestCase {
 
     @Test
     @DisplayName("Тест поиска")
-    public void testSnippet() {
+    void testSnippet() {
 
         ArrayList<String> lemmasInText = getModifiedArray(wordsContent);
         ArrayList<Integer> arrayIndexes = getArrayIndexes(lemmasInText, setLemmas);
@@ -64,13 +62,13 @@ class QueryTest  extends TestCase {
         int from = index - DIFFERENCE;
         int to = index + DIFFERENCE;
 
-        if (testDiff(from) & testAddition(to)) {
+        if (diffTest(from) & additionTest(to)) {
             return redyString(0, wordsContent.length, index);
         }
-        if (testDiff(from) & !testAddition(to)) {
+        if (diffTest(from) & !additionTest(to)) {
             return redyString(0, to, index);
         }
-        if (!testDiff(from) & testAddition(to)) {
+        if (!diffTest(from) & additionTest(to)) {
             return redyString(from, wordsContent.length, index);
         }
 
@@ -78,18 +76,12 @@ class QueryTest  extends TestCase {
     }
 
 
-    private boolean testDiff(Integer from) {
-        if (from <= 0) {
-            return true;
-        }
-        return false;
+    private boolean diffTest(Integer from) {
+        return  from <= 0;
     }
 
-    private boolean testAddition (Integer to) {
-        if (to >= wordsContent.length) {
-            return true;
-        }
-        return false;
+    private boolean additionTest(Integer to) {
+        return  to >= wordsContent.length;
     }
     private String redyString(int from, int to, int index) {
         StringJoiner joiner = new StringJoiner("\s");
@@ -101,7 +93,7 @@ class QueryTest  extends TestCase {
         }
         return joiner.toString();
     }
-    private ArrayList<Integer> getArrayIndexes(ArrayList<String> lemmasInText, TreeSet<String> set) {
+    private ArrayList<Integer> getArrayIndexes(ArrayList<String> lemmasInText, Set<String> set) {
         ArrayList<Integer> arrayIndexes = new ArrayList<>();
         set.forEach(lemma -> {
             for (int i = 0; i < lemmasInText.size(); i++) {

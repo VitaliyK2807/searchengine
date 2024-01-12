@@ -36,7 +36,7 @@ public class IndexMapSearch {
 
     private Set<Relevance> getSetRelevance(Sites webSite, Map<Integer, Double> mapAbsolutesRelevance) {
         Double maxAbsRelevance = mapAbsolutesRelevance.entrySet().stream()
-                .mapToDouble(value -> value.getValue())
+                .mapToDouble(Map.Entry::getValue)
                 .max()
                 .getAsDouble();
         return mapAbsolutesRelevance
@@ -58,13 +58,13 @@ public class IndexMapSearch {
                 .collect(Collectors.toMap(Function.identity(), page -> getMapLemmasAndRank(page, lemmas)));
 
         return rankForPage.entrySet().stream()
-                .collect(Collectors.toMap(page -> page.getKey(), page -> getABSRelevance(page.getValue())));
+                .collect(Collectors.toMap(Map.Entry::getKey, page -> getABSRelevance(page.getValue())));
     }
 
     private Double getABSRelevance(Map<Lemmas, Double> mapLemmasAndRank) {
-        double maxValue = mapLemmasAndRank.entrySet().stream().mapToDouble(value -> value.getValue()).max().getAsDouble();
+        double maxValue = mapLemmasAndRank.entrySet().stream().mapToDouble(Map.Entry::getValue).max().getAsDouble();
         return mapLemmasAndRank.entrySet().stream()
-                .mapToDouble(value -> value.getValue())
+                .mapToDouble(Map.Entry::getValue)
                 .sum() / maxValue;
     }
 
@@ -89,7 +89,7 @@ public class IndexMapSearch {
                 .sum();
     }
 
-    private List<Integer> getListIdPages(Set<Lemmas> lemmas) {//TODO:Оптимизировать
+    private List<Integer> getListIdPages(Set<Lemmas> lemmas) {
         List<Indexes> foundIndexes = new ArrayList<>();
         lemmas.stream()
                 .sorted(Comparator.comparing(Lemmas::getFrequency))
@@ -106,7 +106,7 @@ public class IndexMapSearch {
         return foundIndexes
                 .stream()
                 .map(i -> i.getPage().getId())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<Indexes> updateIndexes(List<Indexes> indexList, int idLemma) {
@@ -114,7 +114,7 @@ public class IndexMapSearch {
                 .map(index -> getIndex(index.getPage().getId(), idLemma))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private List<Indexes> getIndexes(int idLemma) {
@@ -142,7 +142,7 @@ public class IndexMapSearch {
                 .collect(Collectors.toMap(Function.identity(), page -> getMapLemmasAndRank(page, lemmas)));
 
         return rankForPage.entrySet().stream()
-                .collect(Collectors.toMap(page -> page.getKey(), page -> getABSRelevance(page.getValue())));
+                .collect(Collectors.toMap(Map.Entry::getKey, page -> getABSRelevance(page.getValue())));
     }
 
     public void setIndexesMapForTest (Map<Integer, List<Indexes>> mapIndexes) {

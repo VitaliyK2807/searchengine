@@ -1,9 +1,7 @@
 package searchengine.model;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+
 import javax.persistence.*;
 
 @Getter
@@ -13,6 +11,7 @@ import javax.persistence.*;
 @EqualsAndHashCode
 @Table(name = "page", indexes = @javax.persistence.Index(columnList = "path"),
         uniqueConstraints = @UniqueConstraint(columnNames = {"site_id", "path"}))
+@ToString
 public class Pages {
 
     @Id

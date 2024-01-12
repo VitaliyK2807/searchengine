@@ -2,7 +2,6 @@ package searchengine.utils.siteparsing;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
-import java.lang.String;
 import searchengine.utils.lemmas.LemmaFinder;
 import searchengine.model.Indexes;
 import searchengine.model.Lemmas;
@@ -65,12 +64,11 @@ public class WritingLemmas {
 
         if (!lemma.isPresent()) {
 
-            Lemmas newLemma = Lemmas.builder()
+            return Lemmas.builder()
                                 .lemma(word)
                                         .frequency(1)
                                                 .siteId(site)
                                                     .build();
-            return newLemma;
         }
         lemmasRepository.updateLemma(lemma.get().getFrequency() + 1, lemma.get().getId());
 

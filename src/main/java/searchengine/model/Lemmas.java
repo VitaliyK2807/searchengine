@@ -29,8 +29,4 @@ public class Lemmas {
     @Column(name = "frequency", nullable = false)
     private int frequency;
 
-//    @OneToMany(mappedBy = "lemma", cascade = CascadeType.ALL)
-//    @ToString.Exclude
-//    private Set<Indexes> indexes = new HashSet<>();
-
 }

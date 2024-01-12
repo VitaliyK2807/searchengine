@@ -55,10 +55,7 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
         if (isSiteIndexing) {
             isSiteIndexing = false;
 
-            pagesRepository.deleteAll();
-            sitesRepository.deleteAll();
-            indexesRepository.deleteAll();
-            lemmasRepository.deleteAll();
+            deleteAllEntries();
 
             parsings = new Parsing[sitesList.getSites().size()];
 
@@ -94,45 +91,42 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
     }
 
     private void threadLoading () {
-        parsingWebSites = new Runnable() {
-            @Override
-            public void run() {
-                long start = System.currentTimeMillis();
-                int countThread = 0;
-                int countOperations = 0;
+        parsingWebSites = () -> {
+            long start = System.currentTimeMillis();
 
-                log.info("Website indexing started");
-                log.info("Number of sites to index: " + sitesList.getSites().size());
+            log.info("Website indexing started");
+            log.info("Number of sites to index: " + sitesList.getSites().size());
 
-                listWebSites = getSites();
+            listWebSites = getSites();
+            cycleStart();
 
-                while (countOperations != listWebSites.size() || countThread != 0) {
-                    if (watchingThread.isInterrupted()) {
-                        stopped(countOperations);
-                        break;
-                    }
-
-                    if (countThread < COUNT_PROCESSORS && countOperations < listWebSites.size()) {
-                        startedThread(countOperations, listWebSites.get(countOperations));
-                        countThread++;
-                        countOperations++;
-                    }
-
-                    if (countThread == COUNT_PROCESSORS) {
-                        countThread = countWorkerThreads(countThread);
-                    }
-
-                    if (countOperations == listWebSites.size()) {
-                        countThread = countWorkerThreads(countThread);
-                    }
-                }
-
-
-                log.info("Website indexing completed!");
-                log.info("Time spent: " + ((System.currentTimeMillis() - start) / 1000) + " s.");
-            }
+            log.info("Website indexing completed!");
+            log.info("Time spent: " + ((System.currentTimeMillis() - start) / 1000) + " s.");
         };
     }
+
+    private void cycleStart() {
+        int countThread = 0;
+        int countOperations = 0;
+        while (countOperations != listWebSites.size() || countThread != 0) {
+            if (watchingThread.isInterrupted()) {
+                stopped(countOperations);
+                break;
+            }
+            if (countThread < COUNT_PROCESSORS && countOperations < listWebSites.size()) {
+                startedThread(countOperations, listWebSites.get(countOperations));
+                countThread++;
+                countOperations++;
+            }
+            if (countThread == COUNT_PROCESSORS) {
+                countThread = countWorkerThreads(countThread);
+            }
+            if (countOperations == listWebSites.size()) {
+                countThread = countWorkerThreads(countThread);
+            }
+        }
+    }
+
     private void startedThread (int numberOperations, Sites webSite) {
         parsings[numberOperations] = new Parsing(webSite,
                 sitesRepository,
@@ -144,7 +138,7 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
 
     private void stopped (int countOperations) {
         for (int i = 0; i < countOperations; i++) {
-            if (parsings[i].isRun) {
+            if (parsings[i].isRun()) {
                 parsings[i].stopped();
             }
         }
@@ -162,7 +156,7 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
                     newSite.setName(site.getName());
 
                     return sitesRepository.save(newSite);})
-                .collect(Collectors.toList());
+                .toList();
     }
 
 
@@ -182,5 +176,13 @@ public class StartSiteIndexingServiceImpl implements StartSiteIndexingService {
 
         return COUNT_PROCESSORS;
     }
+    private void deleteAllEntries() {
+        log.info("Deleting all entries");
+        indexesRepository.deleteAllInBatch();
+        lemmasRepository.deleteAllInBatch();
+        pagesRepository.deleteAllInBatch();
+        sitesRepository.deleteAllInBatch();
+    }
+
 
 }

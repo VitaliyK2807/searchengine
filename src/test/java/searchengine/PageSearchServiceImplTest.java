@@ -59,7 +59,7 @@ class PageSearchServiceImplTest extends TestCase {
 
     @Test
     @DisplayName("Тест расчета релевантности")
-    public void testGetAbsoluteRelevanceValue() {
+    void testGetAbsoluteRelevanceValue() {
         Map<Integer, Double> expected = new HashMap<>();
         expected.put(pages.get(0), 1.8);
         Map<Integer, Double> actual = indexMapSearch.getMapForTestAbsoluteRelevanceValue(pages, lemmas);
