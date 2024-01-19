@@ -5,6 +5,7 @@ import org.jsoup.HttpStatusException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.springframework.dao.DataIntegrityViolationException;
 import searchengine.model.Pages;
 import searchengine.model.Sites;
 import searchengine.repositories.IndexesRepository;
@@ -17,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.RecursiveAction;
 import java.util.regex.Matcher;
@@ -26,7 +28,6 @@ import java.util.regex.Pattern;
 public class ParsingSite extends RecursiveAction {
     private CopyOnWriteArraySet<String> listUrls;
     private String url;
-    private String domain;
     private Sites site;
     private PagesRepository pagesRepository;
     private SitesRepository sitesRepository;
@@ -36,22 +37,11 @@ public class ParsingSite extends RecursiveAction {
     static volatile boolean stop;
 
     public ParsingSite(String url,
-                       String domain,
                        CopyOnWriteArraySet<String> listUrls,
-                       Sites site,
-                       SitesRepository sitesRepository,
-                       PagesRepository pagesRepository,
-                       LemmasRepository lemmasRepository,
-                       IndexesRepository indexesRepository) {
+                       Sites site) {
         this.url = url;
-        this.domain = domain;
         this.listUrls = listUrls;
         this.site = site;
-        this.sitesRepository = sitesRepository;
-        this.pagesRepository = pagesRepository;
-        this.lemmasRepository = lemmasRepository;
-        this.indexesRepository = indexesRepository;
-
     }
 
     @Override
@@ -64,18 +54,18 @@ public class ParsingSite extends RecursiveAction {
         List<ParsingSite> listTasks = new ArrayList<>();
 
         if (!urlLinks.isEmpty()) {
-                urlLinks.forEach(child -> {
-                    ParsingSite parsingSite = new ParsingSite(child,
-                            domain,
-                            listUrls,
-                            site,
-                            sitesRepository,
-                            pagesRepository,
-                            lemmasRepository,
-                            indexesRepository);
-                    parsingSite.fork();
-                    listTasks.add(parsingSite);
-                });
+            urlLinks.forEach(child -> {
+                ParsingSite parsingSite = new ParsingSite(child,
+                        listUrls,
+                        site);
+                parsingSite.setSitesRepository(sitesRepository);
+                parsingSite.setPagesRepository(pagesRepository);
+                parsingSite.setIndexesRepository(indexesRepository);
+                parsingSite.setLemmasRepository(lemmasRepository);
+
+                parsingSite.fork();
+                listTasks.add(parsingSite);
+            });
 
         }
         listTasks.forEach(ParsingSite::join);
@@ -182,7 +172,7 @@ public class ParsingSite extends RecursiveAction {
         return string.matches(regex);
     }
     private String getRegexUrl() {
-        return "http[s]?://" + "[www.]?" + domain.toLowerCase() + "/[^,\\s\"><«»а-яА-Я]+";
+        return "http[s]?://" + "[www.]?" + site.getName().toLowerCase() + "/[^,\\s\"><«»а-яА-Я]+";
     }
 
 
@@ -194,7 +184,7 @@ public class ParsingSite extends RecursiveAction {
     }
 
     private String getDomainWWW() {
-        return url.substring(0, url.indexOf("/") + 2) + "www." + domain.toLowerCase();
+        return url.substring(0, url.indexOf("/") + 2) + "www." + site.getName().toLowerCase();
     }
 
     private String testPath (String path) {
@@ -205,11 +195,26 @@ public class ParsingSite extends RecursiveAction {
     }
 
     private String getDomainUrl() {
-        return url.substring(0, url.indexOf("/") + 2) + domain.toLowerCase();
+        return url.substring(0, url.indexOf("/") + 2) + site.getName().toLowerCase();
     }
 
     private String getDomainUrlWWW() {
-        return url.substring(0, url.indexOf("/") + 2) + "www." + domain.toLowerCase();
+        return url.substring(0, url.indexOf("/") + 2) + "www." + site.getName().toLowerCase();
     }
 
+    public void setPagesRepository(PagesRepository pagesRepository) {
+        this.pagesRepository = pagesRepository;
+    }
+
+    public void setSitesRepository(SitesRepository sitesRepository) {
+        this.sitesRepository = sitesRepository;
+    }
+
+    public void setLemmasRepository(LemmasRepository lemmasRepository) {
+        this.lemmasRepository = lemmasRepository;
+    }
+
+    public void setIndexesRepository(IndexesRepository indexesRepository) {
+        this.indexesRepository = indexesRepository;
+    }
 }

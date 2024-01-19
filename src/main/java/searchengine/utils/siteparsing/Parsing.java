@@ -27,12 +27,12 @@ public class Parsing extends Thread{
                    PagesRepository pagesRepository,
                    LemmasRepository lemmasRepository,
                    IndexesRepository indexesRepository) {
-        listUrls = new CopyOnWriteArraySet<>();
         this.webSite = webSite;
         this.sitesRepository = sitesRepository;
         this.pagesRepository = pagesRepository;
         this.lemmasRepository = lemmasRepository;
         this.indexesRepository = indexesRepository;
+        listUrls = new CopyOnWriteArraySet<>();
         isRun = false;
     }
 
@@ -49,13 +49,12 @@ public class Parsing extends Thread{
             webSite.setUrl(webSite.getUrl() + "/");
         }
         parsingSite = new ParsingSite(webSite.getUrl(),
-                                                    webSite.getName(),
-                                                    listUrls,
-                                                    webSite,
-                                                    sitesRepository,
-                                                    pagesRepository,
-                                                    lemmasRepository,
-                                                    indexesRepository);
+                listUrls,
+                webSite);
+        parsingSite.setSitesRepository(sitesRepository);
+        parsingSite.setPagesRepository(pagesRepository);
+        parsingSite.setIndexesRepository(indexesRepository);
+        parsingSite.setLemmasRepository(lemmasRepository);
 
         forkJoinPool = new ForkJoinPool();
 

@@ -65,10 +65,10 @@ public class WritingLemmas {
         if (!lemma.isPresent()) {
 
             return Lemmas.builder()
-                                .lemma(word)
-                                        .frequency(1)
-                                                .siteId(site)
-                                                    .build();
+                    .lemma(word)
+                    .frequency(1)
+                    .siteId(site)
+                    .build();
         }
         lemmasRepository.updateLemma(lemma.get().getFrequency() + 1, lemma.get().getId());
 
@@ -78,9 +78,9 @@ public class WritingLemmas {
     private Indexes getIndex(int rank, Lemmas lemma) {
         return Indexes.builder()
                 .lemma(lemma)
-                        .rank(rank)
-                                .page(page)
-                                        .build();
+                .rank(rank)
+                .page(page)
+                .build();
     }
 
 }
