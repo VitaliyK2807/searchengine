@@ -23,7 +23,7 @@ public class PageSearchServiceImpl implements PageSearchService{
     private String site;
     private int offset;
     private int limit;
-    private static final int PERCENT = 90;
+    private static final int PERCENT = 80;
     private final PagesRepository pagesRepository;
     private final LemmasRepository lemmasRepository;
     private final IndexesRepository indexesRepository;

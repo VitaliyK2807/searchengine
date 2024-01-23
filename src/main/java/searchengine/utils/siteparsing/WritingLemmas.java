@@ -38,6 +38,7 @@ public class WritingLemmas {
         LemmaFinder finder = new LemmaFinder(new RussianLuceneMorphology());
         List<Lemmas> lemmas = new ArrayList<>();
         synchronized (lemmasRepository) {
+            log.info("Page processing: " + page.getPath());
             finder.getCollectionLemmas(text)
                     .entrySet()
                     .forEach(word -> {

@@ -55,7 +55,7 @@ public class ApiController {
 
     @PostMapping("/indexPage")
     public ResponseEntity<IndexPageResponse> indexPage(@RequestParam String url) {
-        log.info("Command: @PostMapping(\"/indexPage\")");
+        log.info("Command: @PostMapping(\"/indexPage\"): " + url);
 
         if (url.isEmpty()) {
             log.info("Empty page address entry field!");
@@ -72,7 +72,7 @@ public class ApiController {
                                                            String site,
                                                            int offset,
                                                            int limit) {
-        log.info("Command: @GetMapping(\"/search\")");
+        log.info("Command: @GetMapping(\"/search\"): " + query);
 
         if (query.isEmpty()) {
             log.info("Empty page search input field!");
